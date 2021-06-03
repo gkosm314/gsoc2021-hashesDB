@@ -1,0 +1,129 @@
+hashesdb commands
+-----------------
+The user can only apply changes to one database each time. This is the database that the user "uses". The user will write the commands inside an interactive dialog. Alternatively, he can write the commands inside a .txt file and execute them. We will call a file containing such commands a "hdb script".
+
+Commands in the system's terminal
+------------------------------------
+	hashesdb:
+		Starts an interactive dialog
+
+	hashesdb -h:
+		Prints all the availiable commands.
+
+	hashesdb -h command:
+		This command will print information regarding a specific command.
+
+	hashesdb -v:
+		Prints the software's version (e.g. hashesdb 1.0.2).
+
+	hashesdb -t maxThreads
+		Sets an upperbound regarding the threads the programm can use to.
+
+	hashesdb -u database_path:
+		Starts an interactive dialog.
+		Sets the .db file located at the given path as the database we are currently working on.
+
+	hashesdb -u database_path script_path [-sql] [-s] [-q]:
+		Starts an interactive dialog.
+		Sets the .db file located at the given path as the database we are currently working on.
+		Executes the commands specified by a hdb script located at a given path.
+		If the optional parameter -s is given, then the changes are commited to the database.
+		If the optional parameter -q is given then the interactive dialog does not start.
+		If the optional parameter -sql is given then the script is an sql script.
+
+	hashesdb -u (database_path_1,database_path_2,...) script_path [-sql] [-s] [-q]:
+		Same as before, but the script is now executed for every database inside the parentheses.
+
+	hashesdb -stats database_path:
+		Prints statistics about the database.
+
+	hashesdb -dbinfo database_path:
+		Prints information about the database.	
+
+	hashesdb -e database_path [export_file_path] [export_file_format] [-ow]:
+		Export a database located at a given path to a file of a specific format located at a specific location.
+		If the optional parameter -ow is given, then overwriting is allowed.
+			Default export file name is the name of the database.
+			Default export file directory is the directory in which the database is saved.
+			Default file_format is CSV. 
+
+	hashesdb -i  import_file_path [new_database_path] [-ow]:
+		Create a new database located at a given path by importing data from a specific file format.
+		If the optional parameter -ow is given, then overwriting is allowed.
+			Default new database name is the name of the file.
+			Default new database directory is the directory in which the file is saved.	
+
+Commands inside the program's interactive dialog
+--------------------------------------------------
+	help():
+		This command will print all the availiable commands.
+
+	help(command):
+		This command will print information regarding a specific command.
+
+	version():
+		This command will print the software's version (e.g. hashesdb 1.0.2).
+
+	exit():
+		This command will terminate the program.
+
+	setThreads(maxThreads):
+		This command sets an upperbound regarding the threads the programm can use to.
+
+	export(database_path, export_file_path, file_format):
+		Export the given database. Supported formats: TXT,CSV,JSON,YAML,XML.
+		Ask permission for overwriting a file that already exists.
+			Default export file name is the name of the database.
+			Default export file directory is the directory in which the database is saved.
+			Default file_format is CSV. 
+
+	import(import_file_path, new_database_path):
+		Create a database from a TXT,CSV,JSON,YAML,XML file.
+		Ask permission for overwriting a databse that already exist.
+			Default new database name is the name of the file.
+			Default new database directory is the directory in which the file is saved.	
+
+	use(database_path):
+		This command will specify the database in which the user will work with.
+		The input will be a (relative or absolute) path to the .db file.
+		If the database does not exist, a new one will be created.
+
+	unuse():
+		This command will allow the user to stop using the database he is currently using.
+
+	who():
+		This command will print the database that is currently used.
+	
+	save():
+		This command will commit the last changes to the database.
+
+	undo():
+		This command rolls back any changes to the database since the last call to "save".
+
+	dbinfo(database_path):
+		Prints information about them given database.
+
+	stats(database_path):
+		Prints statistics about given the database.
+
+	execute_hdb_scipt(hdb_script_path,save_changes_flag=False):
+		Executes the commands specified by a hdb script located at a given path.
+		If the second parameter is specified as "True", the changes will be commited to the database. Otherwise, the user will have to save them using "save()".
+
+	execute_sql_scipt(sql_script_path,save_changes_flag=False):
+		Executes the queries specified by a sql script located at a given path.
+		If the second parameter is specified as "True", the changes will be commited to the database. Otherwise, the user will have to save them using "save()".	
+
+	scan(scan_targets, hash_functions, download_location, recursive=False,save_changes_flag=False):-
+		Scans targets, calculates theirs hash keys for specified hash_functions and adds them to the database.
+		If the optional "recursive" parameter is specified as "True", the scan will recursively scan the contents of directories, otherwise it will skip directories.
+		If the optional "save" parameter is specified as "True", the changes will be commited to the database. Otherwise, the user will have to save them using "save()".
+			scan_targets can be files, directories, or urls of github/gitlab/bitbucket repos.
+			hash_functions 
+			If the repos are from the Internet, they will be downloaded to the location specified by the optional parameter download_location. If no location is specified, then the files will be downloaded at the same directory the database is located at.
+
+/*	 TODO	*/
+Write commands that work with Software Heritage.
+Write commands that allow the user to SELECT entries based on specific criteria and print the result or output them in a file.
+Write commands that allow the user to search for files with the same content as input files.
+Write commands that enable similarity checking functionallities.
