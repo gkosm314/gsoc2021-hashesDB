@@ -1,6 +1,9 @@
 hashesdb commands
 -----------------
-The user can only apply changes to one database each time. This is the database that the user "uses". The user will write the commands inside an interactive dialog. Alternatively, he can write the commands inside a .txt file and execute them. We will call a file containing such commands a "hdb script".
+The user can only apply changes to one database each time.
+This is the database that the user "uses".The user will write the commands inside an interactive dialog.
+Alternatively, he can write the commands inside a .txt file and execute them.
+We will call a file containing such commands a "hdb script".
 
 Commands in the system's terminal
 ------------------------------------
