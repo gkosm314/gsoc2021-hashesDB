@@ -1,4 +1,4 @@
-DB_INFORMATION(db_name, db_date_created, db_version, db_date_modified)
+DB_INFORMATION(db_name, db_date_created, db_version, db_last_scan_id, db_date_modified)
 
 HASH_FUNCTION(hash_function_id, hash_function_fuzzy_flag, hash_function_name, hash_function_size)
 
