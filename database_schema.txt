@@ -1,15 +1,15 @@
-DB_INFORMATION(db_name, db_date_created, db_version, db_last_scan_id, db_date_modified)
+DB_INFORMATION(db_name, db_date_created, db_version, db_date_modified, db_last_scan_id)
 
-HASH_FUNCTION(hash_function_id, hash_function_fuzzy_flag, hash_function_name, hash_function_size)
+SCAN(scan_id, scan_hostname, scan_command_executed, scan_date, scan_return_code)
 
-HASH(hash_id, hash_value, hash_function_id, file_id)
+SCAN_CODE(scan_return_code,scan_return_code_description)
 
-FILE(file_id, file_name, file_extension, file_size, file_absolute_path, file_relative_path, file_date_created, file_date_modified, origin_id, scan_id)
+FILE(file_id, scan_id, file_name, file_extension, file_path, file_size, file_date_created, file_date_modified, swh_known, file_updated, origin_id)
 
-SCAN(scan_id, scan_hostname, scan_command_executed, scan_date_executed, scan_return_code)
+ORIGIN(origin_id, origin_is_local_flag, origin_url_or_hostname)
 
-SCAN_CODES(scan_return_code,scan_return_code_description)
+HASH(hash_id, hash_value, hash_function_name, file_id)
 
-SWH_INFO(swi_info_id, swi_known, swi_id_core, swi_id_qualifiers)
+HASH_FUNCTION(hash_function_name, hash_function_fuzzy_flag, hash_function_size)
 
-ORIGIN(origin_id, origin_is_local_flag, origin_url_or_hostname, swi_info_id)
+SWH_INFO(file_id, swh_id_core, swh_id_qualifiers)
