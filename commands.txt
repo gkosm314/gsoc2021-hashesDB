@@ -24,6 +24,9 @@ Commands inside the program's interactive dialog
 
 	version:
 		This command will print the software's version (e.g. hashesdb 1.0.2).
+		
+	about:
+		This command will print basic information about the tool.
 
 	exit:
 		This command will terminate the program.
