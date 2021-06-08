@@ -34,7 +34,7 @@ Commands inside the program's interactive dialog
 	threads max_threads:
 		This command sets an upperbound regarding the threads the programm can use.
 
-	create database_path:
+	create database_path [--overwrite]:
 		This command will create a new database at a specified path.
 
 	use database_path:
@@ -66,12 +66,12 @@ Commands inside the program's interactive dialog
 	schema
 		This command prints the database schema.
 
-	import import_file_path import_file_format:
+	import import_file_path import_file_format [--overwrite]:
 		Import a database from a TXT,CSV,JSON,YAML,XML file.
 		Ask permission for overwriting a database that already exists.
 			Default file_format is CSV. 
 
-	export export_file_path file_format:
+	export export_file_path file_format [--overwrite]:
 		Export the given database. Supported formats: TXT,CSV,JSON,YAML,XML.
 		Ask permission for overwriting a file that already exists.
 			Default export file name is the name of the database.
