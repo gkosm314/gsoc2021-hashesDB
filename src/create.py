@@ -44,20 +44,21 @@ def is_valid_create_path(database_path_parameter):
 	return True
 		
 def delete_file(database_path_parameter):
+	database_path = abspath(database_path_parameter)
 	try:
-		os.remove(database_path_parameter)
+		remove(database_path)
 	except IsADirectoryError:
-		print(f"Overwrite Error: {database_path_parameter} is a directory.")
+		print(f"Overwrite Error: {database_path} is a directory.")
 	except FileNotFoundError:
-		print(f"Overwrite Error: {database_path_parameter} is not found.")
+		print(f"Overwrite Error: {database_path} is not found.")
 	except:
-		print(f"An unexpected error occured while overwriting file {database_path_parameter}.")
+		print(f"An unexpected error occured while deleting file {database_path}.")
 
 def create_database(database_path_parameter):
 	if isfile(database_path_parameter):
 		raise RuntimeError("Error: Tried to create a database using the path of an already existing file")
 
-	engine_url = "sqlite:///" + database_path
+	engine_url = "sqlite:///" + database_path_parameter
 	engine = create_engine(engine_url)
 	with engine.connect() as conn:
-		conn.execute(f"CREATE DATABASE hdb")
+		conn.execute("CREATE DATABASE HDB;")
