@@ -1,5 +1,5 @@
 import sqlite3
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine,Table, Column, BigInteger, Integer, Boolean, String, Text, DateTime, MetaData
 from os.path import split,splitext,abspath,isdir,isfile
 from os import remove
 
@@ -59,6 +59,81 @@ def create_database(database_path_parameter):
 		raise RuntimeError("Error: Tried to create a database using the path of an already existing file")
 
 	engine_url = "sqlite:///" + database_path_parameter
-	engine = create_engine(engine_url)
+
+	#Create a database. The .db file will be automatically created after the first query execution
+	engine = create_engine(engine_url, echo = False)
 	with engine.connect() as conn:
-		conn.execute("CREATE DATABASE HDB;")
+		create_tables(engine)
+
+def create_tables(engine):
+	meta = MetaData()
+
+	db_information = Table(
+		'DB_INFORMATION', meta,
+		Column('db_name', String, primary_key = True),
+		Column('db_date_created', DateTime),
+		Column('db_date_modified', DateTime),
+		Column('db_version', Integer),
+		Column('db_last_scan_id', Integer)
+		)
+
+	scan = Table(
+		'SCAN', meta,
+		Column('scan_id', Integer, primary_key = True),
+		Column('scan_hostname', String),
+		Column('scan_command_executed', Text),
+		Column('scan_date', DateTime),
+		Column('scan_return_code', Integer)
+		)
+
+	scan_code = Table(
+		'SCAN_CODE', meta,
+		Column('scan_return_code', Integer, primary_key = True),
+		Column('scan_return_code_description', Integer)
+		)
+
+	file = Table(
+		'FILE', meta,
+		Column('file_id', Integer, primary_key = True),
+		Column('scan_id', Integer),
+		Column('file_name', String),
+		Column('file_extension', String),
+		Column('file_path', String),
+		Column('file_size', BigInteger),
+		Column('file_date_created', DateTime),
+		Column('file_date_modified', DateTime),
+		Column('swh_known', Boolean),
+		Column('file_updated', Boolean),
+		Column('origin_id', Integer)
+		)
+
+	origin = Table(
+		'ORIGIN', meta,
+		Column('origin_id', Integer, primary_key = True),
+		Column('origin_is_local_flag', Boolean),
+		Column('origin_url_or_hostname', String)
+		)
+
+	hash = Table(
+		'HASH', meta,
+		Column('hash_id', Integer, primary_key = True),
+		Column('hash_value', String),
+		Column('hash_function_name', String),
+		Column('file_id', Integer)
+		)
+
+	hash_function = Table(
+		'HASH_FUNCTION', meta,
+		Column('hash_function_name', String, primary_key = True),
+		Column('hash_function_fuzzy_flag', Boolean),
+		Column('hash_function_size', Integer)
+		)
+
+	swh_info = Table(
+		'SWH_INFO', meta,
+		Column('file_id', Integer),
+		Column('swh_id_core', Integer),
+		Column('swh_id_qualifiers', Integer)
+		)
+
+	meta.create_all(engine)
