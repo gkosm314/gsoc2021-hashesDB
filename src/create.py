@@ -1,5 +1,5 @@
 import sqlite3
-from sqlalchemy import create_engine,Table, Column, BigInteger, Integer, Boolean, String, Text, DateTime, MetaData
+from sqlalchemy import create_engine,Table, Column, BigInteger, Integer, Boolean, String, Text, DateTime, MetaData, ForeignKey
 from os.path import split,splitext,abspath,isdir,isfile
 from os import remove
 
@@ -77,25 +77,25 @@ def create_tables(engine):
 		Column('db_last_scan_id', Integer)
 		)
 
-	scan = Table(
-		'SCAN', meta,
-		Column('scan_id', Integer, primary_key = True),
-		Column('scan_hostname', String),
-		Column('scan_command_executed', Text),
-		Column('scan_date', DateTime),
-		Column('scan_return_code', Integer)
-		)
-
 	scan_code = Table(
 		'SCAN_CODE', meta,
 		Column('scan_return_code', Integer, primary_key = True),
 		Column('scan_return_code_description', Integer)
 		)
 
+	scan = Table(
+		'SCAN', meta,
+		Column('scan_id', Integer, primary_key = True),
+		Column('scan_hostname', String),
+		Column('scan_command_executed', Text),
+		Column('scan_date', DateTime),
+		Column('scan_return_code', Integer, ForeignKey('SCAN_CODE.scan_return_code'))
+		)
+
 	file = Table(
 		'FILE', meta,
 		Column('file_id', Integer, primary_key = True),
-		Column('scan_id', Integer),
+		Column('scan_id', Integer, ForeignKey('SCAN.scan_id')),
 		Column('file_name', String),
 		Column('file_extension', String),
 		Column('file_path', String),
@@ -104,7 +104,7 @@ def create_tables(engine):
 		Column('file_date_modified', DateTime),
 		Column('swh_known', Boolean),
 		Column('file_updated', Boolean),
-		Column('origin_id', Integer)
+		Column('origin_id', Integer, ForeignKey('ORIGIN.origin_id'))
 		)
 
 	origin = Table(
@@ -118,8 +118,8 @@ def create_tables(engine):
 		'HASH', meta,
 		Column('hash_id', Integer, primary_key = True),
 		Column('hash_value', String),
-		Column('hash_function_name', String),
-		Column('file_id', Integer)
+		Column('hash_function_name', String, ForeignKey('HASH_FUNCTION.hash_function_name')),
+		Column('file_id', Integer, ForeignKey('FILE.file_id'))
 		)
 
 	hash_function = Table(
@@ -131,7 +131,7 @@ def create_tables(engine):
 
 	swh_info = Table(
 		'SWH_INFO', meta,
-		Column('file_id', Integer),
+		Column('file_id', Integer, ForeignKey('FILE.file_id')),
 		Column('swh_id_core', Integer),
 		Column('swh_id_qualifiers', Integer)
 		)
