@@ -4,11 +4,15 @@ from os.path import split,splitext,abspath,isdir,isfile
 from os import remove
 
 def create(database_path_parameter, overwrite_flag = False):
-	#Check if the directory exists and if the file is a .db file.
+	"""create(database_path_parameter, overwrite_flag = False)
+	Creates a hashesDB database located at database_path_parameter, if the given path is a .db file and the directory that contains it exists.
+	If the file already exists, it is overwritten if overwrite_flag = True. Otherwise, an error is printed."""
+
+	#Check if the directory exists AND if the file is a .db file.
 	if not is_valid_create_path(database_path_parameter):
 		return False
 
-	#Handle database overwriting
+	#Handle .db file overwriting
 	if isfile(database_path_parameter):
 		if overwrite_flag:
 			delete_file(database_path_parameter)
@@ -25,6 +29,9 @@ def create(database_path_parameter, overwrite_flag = False):
 
 
 def is_valid_create_path(database_path_parameter):
+	"""is_valid_create_path(database_path_parameter):
+	Returns True if database_path_parameter is a .db file located in an existing directory. Otherwise it returns False."""
+	
 	#Convert parameter to absolute path, in case it is a relative path.
 	database_path = abspath(database_path_parameter)
 
@@ -44,6 +51,10 @@ def is_valid_create_path(database_path_parameter):
 	return True
 		
 def delete_file(database_path_parameter):
+	"""delete_file(database_path_parameter):
+	Deletes a .db database file located at database_path_parameter. Raises error if the directory/file does not exist."""
+
+	#Convert the path to absolute path in case it is relative path.
 	database_path = abspath(database_path_parameter)
 	try:
 		remove(database_path)
@@ -55,6 +66,11 @@ def delete_file(database_path_parameter):
 		print(f"An unexpected error occured while deleting file {database_path}.")
 
 def create_database(database_path_parameter):
+	"""create_database(database_path_parameter):
+	Creates a hashesDB database located at database_path_parameter.
+	If a file already exists at the given path, an exception is raised."""
+
+	#Check if a file already exists at the given path.
 	if isfile(database_path_parameter):
 		raise RuntimeError("Error: Tried to create a database using the path of an already existing file")
 
@@ -66,8 +82,12 @@ def create_database(database_path_parameter):
 		create_tables(engine)
 
 def create_tables(engine):
+	"""create_tables(engine):
+	Creates the tables specified by the database schema and sets datatypes, primary keys and foreign keys."""
+
 	meta = MetaData()
 
+	#Define the tables included in the schema
 	db_information = Table(
 		'DB_INFORMATION', meta,
 		Column('db_name', String, primary_key = True),
@@ -136,4 +156,5 @@ def create_tables(engine):
 		Column('swh_id_qualifiers', Integer)
 		)
 
+	#Create the tables
 	meta.create_all(engine)
