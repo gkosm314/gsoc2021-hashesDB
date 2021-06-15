@@ -1,0 +1,267 @@
+hashesdb commands
+-----------------
+The user can only apply changes to one database each time.
+This is the database that the user "uses".The user will write the commands inside an interactive dialog.
+Alternatively, he can write the commands inside a .txt file and execute them.
+We will call a file containing such commands a "hdb script".
+
+Commands in the system's terminal
+------------------------------------
+	hashesdb:
+		Starts an interactive dialog
+		
+	hashesdb help
+
+	hashesdb help command
+
+	hashesdb version
+
+	hashesdb about
+
+	hashesdb create database_path [--overwrite]
+
+	hashesdb -u database_path:
+		Starts an interactive dialog.
+		Sets the .db file located at the given path as the database we are currently using.
+
+	hashesdb -u database_path dbinfo
+
+	hashesdb -u database_path stats
+
+	hashesdb schema
+
+	hashesdb import import_file_path import_file_format [--overwrite]
+
+	hashesdb export export_file_path file_format [--overwrite]
+
+	hashesdb -u database_path execute_hdb_scipt hdb_script_path
+
+	hashesdb -u database_path scan -targets scan_targets -calc hash_functions_parameter	[-download download_location] [-r]
+
+	hashesdb scan_codes
+
+	hashesdb hash_functions [-details]
+
+	hashesdb hash_is_available hash_name_parameter
+
+	hashesdb -u database_path query [-o output_parameter]
+
+	hashesdb -u database_path compare -fuzz fuzzy_hash_function -targets comparsion_targets_file_ids [-all] [-threshold threshold_value] [-o output_parameter]	
+
+	hashesdb -u database_path print ...
+
+	hashesdb -u database_path find_duplicates --path paths_to_files_parameter
+
+	hashesdb -u database_path find_duplicates --file_id file_ids_parameter
+
+	hashesdb swh -targets scan_targets -calc hash_functions_parameter [-r]
+
+		
+Commands inside the program's interactive dialog
+--------------------------------------------------
+	help
+		This command will print all the availiable commands.
+
+	help command:
+		This command will print information regarding a specific command.
+
+	version:
+		This command will print the software's version (e.g. hashesdb 1.0.2).
+		
+	about:
+		This command will print basic information about the tool.
+
+	exit:
+		This command will terminate the program.
+
+	threads max_threads:
+		This command sets an upperbound regarding the threads the programm can use.
+
+	create database_path [--overwrite]:
+		This command will create a new database at a specified path.
+
+	use database_path:
+		This command will specify the database in which the user will work with.
+		The input will be a (relative or absolute) path to the .db file.
+		If the database does not exist, a new one will be created.
+
+	unuse:
+		This command will allow the user to stop using the database he is currently using.
+
+	status:
+		This command will print the database that is currently used.
+	
+	save:
+		This command will commit the last changes to the database.
+
+	undo:
+		This command cancels the last change made.
+
+	rollback:
+		This command rolls back any changes to the database since the last call to "save".
+
+	clear:
+		This command will clear a database by deleting its content.		
+
+	dbinfo:
+		This command will print information about the used database.
+
+	stats:
+		Prints statistics about the used database.
+
+	schema
+		This command prints the database schema.
+
+	import import_database_path import_file_path import_file_format [--overwrite]:
+		Import a database from a TXT,CSV,JSON,YAML,XML file.
+		Ask permission for overwriting a database that already exists.
+			Default file_format is CSV. 
+
+	export export_database_path export_file_path file_format [--overwrite]:
+		Export the given database. Supported formats: TXT,CSV,JSON,YAML,XML.
+		Ask permission for overwriting a file that already exists.
+			Default export file name is the name of the database.
+			Default export file directory is the directory in which the database is saved.
+			Default file_format is CSV. 
+			Ask if the user wants to export the changed version or the original version.
+		
+	execute_hdb_scipt hdb_script_path:
+		This command will execute the commands specified by a hdb script located at a given path.
+
+	scan 
+		-targets scan_targets 
+		-calc hash_functions_parameter
+		[-download download_location]
+		[-r]:
+		
+		This command will scan targets, calculate theirs hash keys for specified hash functions and add them to the database.
+		If the optional "recursive" (-r) flag is given, the scan will recursively scan the contents of directories, otherwise it will skip directories.
+			scan_targets can be files, directories, or urls of github/gitlab/bitbucket repos.
+			hash_functions will be a list of hash functions (e.g. (md5,sha1) )
+			If the repos are from the Internet, they will be downloaded to the location specified by the optional parameter download_location. If no location is specified, then the files will be downloaded at the same directory the database is located at.
+
+	hash_functions [-details]:
+		This command will print the available hash algorithms.
+		-details flag will print the whole hash_functions table
+
+	hash_is_available hash_name_parameter:
+		This command will return True if a hash function is available or False otherwise.
+
+	scan_codes
+		This command will print the possible scan codes and their meaning.
+
+	query [-o output_parameter]:
+		This command allows the user to type a custom made SELECT query.
+			Optional parameter output_parameter is a path to a file where the results will be printed.
+			Supported formats: TXT,CSV,JSON,YAML,XML.
+			Default output_parameter is the standard output.
+
+	print --scan
+		[-view_scan scan_columns_to_print]
+
+		[-scan_id scan_id_parameter]
+		[-scan_hostname scan_hostname_parameter]
+		[-scan_command_executed scan_command_executed_parameter]
+		[-scan_date scan_date_parameter]
+		[-scan_return_code scan_return_code_parameter]
+
+		[-o output_parameter]
+
+	print --file
+		[-view_file file_columns_to_print]
+		[-view_scan scan_columns_to_print]
+		[-view_swh swh_columns_to_print]
+		[-view_origin origin_columns_to_print]
+
+		[-file_id file_id_parameter]
+		[-scan_id scan_id_parameter]
+		[-file_name file_name_parameter]
+		[-file_extension extension_parameter]
+		[-file_path file_path_parameter]
+		[-swh_known]
+		[-file_updated]
+
+		[-origin_id origin_id_parameter]
+		[-local|-nonlocal]
+		[-origin_url_or_hostname origin_url_or_hostname_parameter]
+		
+		[-o output_parameter]
+
+	print --hash
+		[-view_hash hash_columns_to_print]
+		[-view_hash_function hash_function_columns_to_print]
+		[-view_file file_columns_to_print]
+		[-view_scan scan_columns_to_print]
+		[-view_swh swh_columns_to_print]
+		[-view_origin origin_columns_to_print]
+
+		[-hash_id hash_id_parameter]
+		[-hash_value hash_value_parameter]
+		[-fuzzy]
+		[-hash_function_name hash_functions_parameter]
+
+		[-file_id file_id_parameter]
+		[-scan_id scan_id_parameter]
+		[-file_name file_name_parameter]
+		[-file_extension extension_parameter]
+		[-file_path file_path_parameter]
+		[-swh_known]
+		[-origin_id origin_id_parameter]
+		[-local|-nonlocal]
+		[-origin_url_or_hostname origin_url_or_hostname_parameter]
+		[-file_updated]
+
+		[-o output_parameter]
+ 
+	print --swh
+		[-view_swh swh_columns_to_print]
+		[-view_file file_columns_to_print]
+		[-view_scan scan_columns_to_print]
+		[-view_swh swh_columns_to_print]
+		[-view_origin origin_columns_to_print]
+
+		[-swh_id_core swh_id_core_parameter]
+		[-swh_id_qualifiers swh_id_qualifiers_parameter]
+
+		[-file_id file_id_parameter]
+		[-scan_id scan_id_parameter]
+		[-file_name file_name_parameter]
+		[-file_extension extension_parameter]
+		[-file_path file_path_parameter]
+		[-swh_known]
+		[-origin_id origin_id_parameter]
+		[-local|-nonlocal]
+		[-origin_url_or_hostname origin_url_or_hostname_parameter]
+		[-file_updated]
+
+		[-o output_parameter]
+
+	print --origin
+		[-view columns_to_print]
+
+		[-origin_id origin_id_parameter]
+		[-local|-nonlocal]
+		[-origin_url_or_hostname origin_url_or_hostname_parameter]
+
+		[-o output_parameter]
+
+	compare
+		-fuzz fuzzy_hash_function 
+		-targets comparsion_targets_file_ids
+		[-all]
+		[-threshold threshold_value]
+
+		[-o output_parameter]
+
+	find_duplicates --path paths_to_files_parameter
+	find_duplicates --file_id file_ids_parameter
+
+	??
+	swh
+		-targets scan_targets 
+		-calc hash_functions_parameter
+		[-r]:
+	??
+
+/*TODO*/
+Specify "begins with" and "contains" when it comes to "print" command parameters
