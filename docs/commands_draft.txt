@@ -10,9 +10,52 @@ Commands in the system's terminal
 	hashesdb:
 		Starts an interactive dialog
 		
-	hashesdb database_path:
+	hashesdb help
+
+	hashesdb help command
+
+	hashesdb version
+
+	hashesdb about
+
+	hashesdb create database_path [--overwrite]
+
+	hashesdb -u database_path:
 		Starts an interactive dialog.
 		Sets the .db file located at the given path as the database we are currently using.
+
+	hashesdb -u database_path dbinfo
+
+	hashesdb -u database_path stats
+
+	hashesdb schema
+
+	hashesdb import import_file_path import_file_format [--overwrite]
+
+	hashesdb export export_file_path file_format [--overwrite]
+
+	hashesdb -u database_path execute_hdb_scipt hdb_script_path
+
+	hashesdb -u database_path scan -targets scan_targets -calc hash_functions_parameter	[-download download_location] [-r]
+
+	hashesdb scan_codes
+
+	hashesdb hash_functions [-details]
+
+	hashesdb hash_is_available hash_name_parameter
+
+	hashesdb -u database_path query [-o output_parameter]
+
+	hashesdb -u database_path compare -fuzz fuzzy_hash_function -targets comparsion_targets_file_ids [-all] [-threshold threshold_value] [-o output_parameter]	
+
+	hashesdb -u database_path print ...
+
+	hashesdb -u database_path find_duplicates --path paths_to_files_parameter
+
+	hashesdb -u database_path find_duplicates --file_id file_ids_parameter
+
+	hashesdb swh -targets scan_targets -calc hash_functions_parameter [-r]
+
 		
 Commands inside the program's interactive dialog
 --------------------------------------------------
