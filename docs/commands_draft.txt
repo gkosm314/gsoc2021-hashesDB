@@ -51,6 +51,9 @@ Commands inside the program's interactive dialog
 	save:
 		This command will commit the last changes to the database.
 
+	undo:
+		This command cancels the last change made.
+
 	rollback:
 		This command rolls back any changes to the database since the last call to "save".
 
@@ -209,6 +212,13 @@ Commands inside the program's interactive dialog
 
 	find_duplicates --path paths_to_files_parameter
 	find_duplicates --file_id file_ids_parameter
+
+	??
+	swh
+		-targets scan_targets 
+		-calc hash_functions_parameter
+		[-r]:
+	??
 
 /*TODO*/
 Specify "begins with" and "contains" when it comes to "print" command parameters
