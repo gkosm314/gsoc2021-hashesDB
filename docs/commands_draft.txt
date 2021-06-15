@@ -94,9 +94,6 @@ Commands inside the program's interactive dialog
 	save:
 		This command will commit the last changes to the database.
 
-	undo:
-		This command cancels the last change made.
-
 	rollback:
 		This command rolls back any changes to the database since the last call to "save".
 
