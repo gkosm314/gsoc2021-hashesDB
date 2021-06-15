@@ -9,7 +9,7 @@ def create(database_path_parameter, overwrite_flag = False):
 	If the file already exists, it is overwritten if overwrite_flag = True. Otherwise, an error is printed."""
 
 	#Check if the directory exists AND if the file is a .db file.
-	if not is_valid_create_path(database_path_parameter):
+	if not is_valid_db_path(database_path_parameter):
 		return False
 
 	#Handle .db file overwriting
@@ -28,8 +28,8 @@ def create(database_path_parameter, overwrite_flag = False):
 		print(e)
 
 
-def is_valid_create_path(database_path_parameter):
-	"""is_valid_create_path(database_path_parameter):
+def is_valid_db_path(database_path_parameter):
+	"""is_valid_db_path(database_path_parameter):
 	Returns True if database_path_parameter is a .db file located in an existing directory. Otherwise it returns False."""
 	
 	#Convert parameter to absolute path, in case it is a relative path.
