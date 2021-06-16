@@ -3,7 +3,6 @@ from os.path import abspath
 
 class App:
 	#Class initialization
-	#TODO = initialize max_threads
 	def __init__(self, used_database_path_param = None):
 
 		#By default our app runs sequentially
