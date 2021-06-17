@@ -47,6 +47,12 @@ class App:
 		pass
 
 	def threads(self,max_threads_number_parameter):
+		"""def threads(self,max_threads_number_parameter):
+		Parameters: max_threads_number_parameter - sets the maximum number of threads that can be used at parallel scanning
+
+		Result: The method sets self.max_threads = max_threads_number_parameter
+
+		Errors: Throws an error if the parameter is not an integer or if the parameter is not greater than zero."""
 		try:
 			max_threads_number = int(max_threads_number_parameter)
 		except (TypeError, ValueError) as e:
