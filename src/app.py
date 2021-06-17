@@ -24,7 +24,7 @@ class App:
 				self.used_database_path = None
 				print(e)
 			else:
-				#This will be probably become part of use
+				#This will probably be moved to the self.use() method
 				#If you succeeded in using a database, set the appropriate flag to True.
 				self.database_used_flag = True
 				self.used_database_path = db_absolute_path
@@ -47,8 +47,15 @@ class App:
 		pass
 
 	def threads(self,max_threads_number_parameter):
-		#threads command implementation here...
-		pass
+		try:
+			max_threads_number = int(max_threads_number_parameter)
+		except (TypeError, ValueError) as e:
+			print("Error: max_threads parameter should be an integer.")
+		else:
+			if max_threads_number > 0:
+				self.max_threads = max_threads_number
+			else:
+				print("Error: max_threads parameter should be greater than zero.")
 
 	def create(self, path_param, overwrite_flag = False):
 		create_create(path_param, overwrite_flag)
