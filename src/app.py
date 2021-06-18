@@ -1,11 +1,12 @@
-import misc_commands
-from create import is_valid_db_path, create
+from create import is_valid_db_path, create as create_create
 from os.path import abspath
 
-class app:
+class App:
 	#Class initialization
-	#TODO = initialize max_threads
 	def __init__(self, used_database_path_param = None):
+
+		#By default our app runs sequentially
+		self.max_threads = 1
 
 		if used_database_path_param == None:
 			#If no specific database-to-use is set, set the appropriate flag to False.
@@ -23,63 +24,79 @@ class app:
 				self.used_database_path = None
 				print(e)
 			else:
+				#This will probably be moved to the self.use() method
 				#If you succeeded in using a database, set the appropriate flag to True.
 				self.database_used_flag = True
 				self.used_database_path = db_absolute_path
 
-	def help(command_param = None):
+	def help(self, command_param = None):
 		#help command implementation here...
 		pass
 
-	def version():
+	def version(self):
 		#version command implementation here...
 		pass
 
-	def about():
+	def about(self):
 		#about command implementation here...
 		pass
 
-	def exit():
+	def exit(self):
 		#exit command implementation here...
 		#__del__ constructor will be called in here
 		pass
 
-	def threads(max_threads_number_parameter):
-		#threads command implementation here...
-		pass
+	def threads(self,max_threads_number_parameter):
+		"""def threads(self,max_threads_number_parameter):
+		Parameters: max_threads_number_parameter - sets the maximum number of threads that can be used at parallel scanning
 
-	def create(path_param):
-		#create command implementation here...
-		pass
+		Result: The method sets self.max_threads = max_threads_number_parameter
 
-	def use(path_param):
+		Errors: Throws an error if the parameter is not an integer or if the parameter is not greater than zero."""
+		try:
+			max_threads_number = int(max_threads_number_parameter)
+		except (TypeError, ValueError) as e:
+			print("Error: max_threads parameter should be an integer.")
+		else:
+			if max_threads_number > 0:
+				self.max_threads = max_threads_number
+			else:
+				print("Error: max_threads parameter should be greater than zero.")
+
+	def create(self, path_param, overwrite_flag = False):
+		create_create(path_param, overwrite_flag)
+
+	def use(self, path_param):
 		#use command implementation here...
 		pass
 
-	def unuse():
+	def unuse(self):
 		#unuse command implementation here...
 		pass
 
-	def status():
-		#status command implementation here...
-		pass
+	def status(self):
+		if not self.database_used_flag:
+			#If there is no database currently used:
+			print("No database is currently active. You can choose a database to manage with the 'use database_path' command.")
+		else:
+			#If there is a database currently used, check if there are unsaved changes waiting to be commited
+			print(f"Database currently used: {self.used_database_path}")
+			if self.unsaved_changes_flag:
+				print("There are unsaved changes made regarding this database. You can commit them to the database with the 'save' command.")
+			else:
+				print("There are no unsaved changes made regarding this database.")
 
-	def schema():
+		#Print maximum threads
+		print(f"Number of maximum threads allowed: {self.max_threads}")
+
+	def schema(self):
 		#schema command implementation here...
 		pass
 
-	def import(import_database_path_param, import_file_path_param, import_file_format_param, overwrite_flag = False):
+	def import_db(self, import_database_path_param, import_file_path_param, import_file_format_param, overwrite_flag = False):
 		#import command implementation here...
 		pass
 
-	def export(export_database_path_param, export_file_path_param, export_file_format_param, overwrite_flag = False):
+	def export_db(self, export_database_path_param, export_file_path_param, export_file_format_param, overwrite_flag = False):
 		#export command implementation here...
-		pass
-
-	def hash_functions(details_flag = False):
-		#hash_functions command implementation here...
-		pass
-
-	def hash_is_available(hash_name_param):
-		#hash_is_available command implementation here...
 		pass

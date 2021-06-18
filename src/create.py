@@ -1,7 +1,8 @@
-import sqlite3
 from sqlalchemy import create_engine,Table, Column, BigInteger, Integer, Boolean, String, Text, DateTime, MetaData, ForeignKey
-from os.path import split,splitext,abspath,isdir,isfile
+from os.path import split,splitext,abspath,isdir,isfile,basename
 from os import remove
+
+from initialize_database import initialize_db
 
 def create(database_path_parameter, overwrite_flag = False):
 	"""create(database_path_parameter, overwrite_flag = False)
@@ -77,13 +78,16 @@ def create_database(database_path_parameter):
 	engine_url = "sqlite:///" + database_path_parameter
 
 	#Create a database. The .db file will be automatically created after the first query execution
+	#After the creation the DB_INFORMATION, SCAN_CODE and HASH_FUNCTION tables will be initialized
 	engine = create_engine(engine_url, echo = False)
 	with engine.connect() as conn:
-		create_tables(engine)
+		meta = create_tables(engine, conn)
+		initialize_db(meta, conn, database_path_parameter)
 
-def create_tables(engine):
+def create_tables(engine, conn):
 	"""create_tables(engine):
-	Creates the tables specified by the database schema and sets datatypes, primary keys and foreign keys."""
+	Creates the tables specified by the database schema and sets datatypes, primary keys and foreign keys.
+	Returns the Metadata() object that contains the schema info"""
 
 	meta = MetaData()
 
@@ -158,3 +162,4 @@ def create_tables(engine):
 
 	#Create the tables
 	meta.create_all(engine)
+	return meta
