@@ -75,8 +75,19 @@ class App:
 		pass
 
 	def status(self):
-		#status command implementation here...
-		pass
+		if not self.database_used_flag:
+			#If there is no database currently used:
+			print("No database is currently active. You can choose a database to manage with the 'use database_path' command.")
+		else:
+			#If there is a database currently used, check if there are unsaved changes waiting to be commited
+			print(f"Database currently used: {self.used_database_path}")
+			if self.unsaved_changes_flag:
+				print("There are unsaved changes made regarding this database. You can commit them to the database with the 'save' command.")
+			else:
+				print("There are no unsaved changes made regarding this database.")
+
+		#Print maximum threads
+		print(f"Number of maximum threads allowed: {self.max_threads}")
 
 	def schema(self):
 		#schema command implementation here...
