@@ -32,9 +32,22 @@ def initialize_db_information(meta, conn, database_path_parameter):
 	conn.execute(q)
 
 def initialize_scan_code(meta, conn):
-	#initialize_scan_code implementetion here...
-	pass
+	"""def initialize_db_information(meta, conn, database_path_parameter):
+	Parameters: meta - The Metadata() object that contains the schema information.
+				conn - The connection to the engine through which we will execute the query
 
+	Result: The SCAN_CODE will be initialized"""
+
+	#Get the scan_code Table() object
+	scan_code = meta.tables['SCAN_CODE']
+
+	#Initialize SCAN_CODE table
+	#TODO: More scan_return_codes will be added after the scan command is implemented
+	conn.execute(scan_code.insert(), [
+	   {'scan_return_code': 0, 'scan_return_code_description' : 'Successful scan'},
+	   {'scan_return_code': 1, 'scan_return_code_description' : 'Failed scan'},
+	])
+	
 def initialize_hash_function(meta, conn):
 	#initialize_hash_function implementetion here...
 	pass
