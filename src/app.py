@@ -38,8 +38,21 @@ class App:
 		pass
 
 	def about(self):
-		#about command implementation here...
-		pass
+		"""def about(self):
+		Result: Prints information about the project."""
+		print("------------------------------------------------------------------------------------------------------------------------------------------")
+		print("""
+		hashesDB is a command line tool that helps users manage a database of hashes of files. It provides several database
+		functionalities such as insertion, deletion and searching.It also supports fuzzy hashing, a hashing technique based
+		on Locality-Sensitive Hashing that makes it possible to perform similarity	checking with the use of hashing.""")
+		print("""
+		The development of this project began by the Open Technologies Alliance(GFOSS) during the Google Summer of Code 2021
+		program. hashesDB is licenced under the GPL-3.0 License.""")
+		print("""
+		If you want to report an issue or you are interested in contributing, visit:
+		https://github.com/eellak/gsoc2021-hashesDB
+		""")
+		print("------------------------------------------------------------------------------------------------------------------------------------------")
 
 	def exit(self):
 		#exit command implementation here...
