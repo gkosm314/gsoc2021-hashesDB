@@ -1,3 +1,6 @@
+from sqlalchemy import MetaData
+from os.path import splitext,basename
+from datetime import datetime
 from hashlib import algorithms_guaranteed
 
 def initialize_db(meta, conn, database_path_parameter):
