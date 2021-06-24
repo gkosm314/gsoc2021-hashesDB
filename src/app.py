@@ -1,5 +1,6 @@
 from create import is_valid_db_path, create as create_create
 from os.path import abspath
+from os import getcwd
 
 class App:
 	#Class initialization
@@ -9,7 +10,7 @@ class App:
 		self.max_threads = 1
 
 		#Set the working directory
-		self.working_directory = os.getcwd()
+		self.working_directory = getcwd()
 
 		if used_database_path_param == None:
 			#If no specific database-to-use is set, set the appropriate flag to False.
