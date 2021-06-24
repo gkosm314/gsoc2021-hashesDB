@@ -8,6 +8,9 @@ class App:
 		#By default our app runs sequentially
 		self.max_threads = 1
 
+		#Set the working directory
+		self.working_directory = os.getcwd()
+
 		if used_database_path_param == None:
 			#If no specific database-to-use is set, set the appropriate flag to False.
 			self.database_used_flag = False
@@ -101,6 +104,9 @@ class App:
 
 		#Print maximum threads
 		print(f"Number of maximum threads allowed: {self.max_threads}")
+
+		#Print maximum threads
+		print(f"Number of maximum threads allowed: {self.working_directory}")		
 
 	def schema(self):
 		#schema command implementation here...
