@@ -1,5 +1,6 @@
 from create import is_valid_db_path, create as create_create
 from os.path import abspath
+from os import getcwd
 
 class App:
 	#Class initialization
@@ -7,6 +8,9 @@ class App:
 
 		#By default our app runs sequentially
 		self.max_threads = 1
+
+		#Set the working directory
+		self.working_directory = getcwd()
 
 		if used_database_path_param == None:
 			#If no specific database-to-use is set, set the appropriate flag to False.
@@ -38,8 +42,21 @@ class App:
 		pass
 
 	def about(self):
-		#about command implementation here...
-		pass
+		"""def about(self):
+		Result: Prints information about the project."""
+		print("------------------------------------------------------------------------------------------------------------------------------------------")
+		print("""
+		hashesDB is a command line tool that helps users manage a database of hashes of files. It provides several database
+		functionalities such as insertion, deletion and searching.It also supports fuzzy hashing, a hashing technique based
+		on Locality-Sensitive Hashing that makes it possible to perform similarity	checking with the use of hashing.""")
+		print("""
+		The development of this project began by the Open Technologies Alliance(GFOSS) during the Google Summer of Code 2021
+		program. hashesDB is licenced under the GPL-3.0 License.""")
+		print("""
+		If you want to report an issue or you are interested in contributing, visit:
+		https://github.com/eellak/gsoc2021-hashesDB
+		""")
+		print("------------------------------------------------------------------------------------------------------------------------------------------")
 
 	def exit(self):
 		#exit command implementation here...
@@ -77,17 +94,20 @@ class App:
 	def status(self):
 		if not self.database_used_flag:
 			#If there is no database currently used:
-			print("No database is currently active. You can choose a database to manage with the 'use database_path' command.")
+			print("No database is currently active. You can choose a database to manage with the 'use database_path' command.\n")
 		else:
 			#If there is a database currently used, check if there are unsaved changes waiting to be commited
-			print(f"Database currently used: {self.used_database_path}")
+			print(f"Database currently used: {self.used_database_path}\n")
 			if self.unsaved_changes_flag:
 				print("There are unsaved changes made regarding this database. You can commit them to the database with the 'save' command.")
 			else:
 				print("There are no unsaved changes made regarding this database.")
 
 		#Print maximum threads
-		print(f"Number of maximum threads allowed: {self.max_threads}")
+		print(f"Number of maximum threads allowed: {self.max_threads}\n")
+
+		#Print maximum threads
+		print(f"Working directory: {self.working_directory}\n")		
 
 	def schema(self):
 		#schema command implementation here...
