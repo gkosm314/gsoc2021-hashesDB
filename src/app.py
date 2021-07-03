@@ -131,7 +131,38 @@ class App:
 		pass
 		
 	def unuse(self):
-		pass
+		"""
+		Description
+		-----------
+		Implementetion of the 'unuse' command.
+		Checks if the database we are currently using has unsaved changes.
+		If it has unsaved changes, this function prints a relative warning.
+		Otherwise, it tries to delete the database we are currently.
+		Finally, it sets self.used_database to a NoDb() object.
+
+		Results
+		-----------
+		If the database does not have unsaved changes, then this functions sets self.used_database to a NoDb() object."""
+
+		if not database_is_used(self.used_database):
+			#You have to use a database before unusing one
+			print("No database is currently used. You can begin using a database with the 'use' command.\n")
+		else:
+			if self.used_database.has_unsaved_changes():
+				#You have to handle unsaved changes before unusing a database
+				print("There are unsaved changes made in this database. You must save or cancel the changes before you unuse this database.")
+				print("You can save the changes you have made with the 'save' command or you can cancel them with the 'rollback' command.\n")
+			else:
+				try:
+					#Try to destroy the Db() object you are currently using
+					del self.used_database
+				except Exception as e:
+					print("An error occured while trying to disconnect from the database. See more details below.")
+					print(e)
+				finally:
+					#No matter what, after unuse, self.used_database should be a NoDb() object
+					print("You are not using this database anymore.\n")
+					self.used_database = NoDb()
 
 	def status(self):
 		"""
