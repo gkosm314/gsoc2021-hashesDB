@@ -80,7 +80,23 @@ class Db:
 		return self.unsaved_changes_flag
 
 	def save(self):
-		pass
+		"""
+		Description
+		-----------
+		If there are unsaved changes, it saves them. Otherwise, it prints a warning message informing the user that there are no changes to save."""
+
+		if not self.has_unsaved_changes():
+			print("There are no unsaved changes to be commited")
+		else:
+			#Try to save the unsaved changes
+			try:
+				self.db_session.commit()
+			except Exception as e:
+				print("Error: a problem occured while trying to commit the changes to the database. In more detail:")
+				print(e)
+			else:
+				#If save was successful, then there are no unsaved changes now.
+				self.unsaved_changes_flag = False
 
 	def rollback(self):
 		pass
