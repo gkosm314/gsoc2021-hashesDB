@@ -86,7 +86,26 @@ class Db:
 		pass
 
 	def clear(self):
-		pass
+		"""
+		Description
+		-----------
+		Clear the database from all its data, except the data that were inserted during the initialisation of the database."""
+
+		print("Clearing the database...")
+		try:
+			self.db_session.query(Scan).delete()
+			self.db_session.query(Origin).delete()
+			self.db_session.query(File).delete()
+			self.db_session.query(Hash).delete()
+			self.db_session.query(SwhInfo).delete()
+			self.db_session.query(DbInformation).delete()
+			initialize_db_information(self.db_session, self.get_database_path())
+		except Exception as e:
+			self.db_session.rollback()
+			print("Clearing the database failed...")		
+		else:
+			print("Cleared the database successfully.")
+			self.db_session.commit()
 
 	def dbinfo(self):
 		pass
