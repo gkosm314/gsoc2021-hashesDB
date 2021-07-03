@@ -133,6 +133,12 @@ def create_database(database_path_parameter):
 	#After the creation, the DB_INFORMATION, SCAN_CODE and HASH_FUNCTION tables will be initialized by initialize_db
 	engine = create_engine(engine_url, echo = False)
 	with engine.connect() as conn:
-		#Try to create the tables and to initialize them
-		Base.metadata.create_all(engine)
-		initialize_db(engine, database_path_parameter)
+		try:
+			#Try to create the tables and to initialize them
+			Base.metadata.create_all(engine)
+			initialize_db(engine, database_path_parameter)
+		except Exception as e:
+			#Delete the created database if you the creation of the hashesDB database fails
+			delete_file(database_path_parameter)
+			print(e)
+			raise RuntimeError("Error: An error occured while creating the database.")
