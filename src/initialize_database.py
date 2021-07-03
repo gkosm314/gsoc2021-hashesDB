@@ -1,75 +1,92 @@
-from sqlalchemy import MetaData
+from sqlalchemy.orm import sessionmaker
 from os.path import splitext,basename
 from datetime import datetime
 from hashlib import algorithms_guaranteed
 
-def initialize_db(meta, conn, database_path_parameter):
-	"""def initialize_db(meta, conn, database_path_parameter):
-	Parameters: meta - The Metadata() object that contains the schema information.
-				conn - The connection to the engine through which we will execute the query
-				database_path_parameter - The path to the database (only useful in order to extract the database name)
+from table_classes import *
 
-	Result: The DB_INFORMATION, SCAN_CODE and HASH_FUNCTION tables will be initialized"""
+def initialize_db(engine, database_path_parameter):
+	"""
+	Description
+	-----------
+	Initializes an empty hashesDB database.
+	After execution, the DB_INFORMATION, SCAN_CODE and HASH_FUNCTION tables will be initialized
 
-	initialize_db_information(meta, conn, database_path_parameter)
-	initialize_scan_code(meta, conn)
-	initialize_hash_function(meta, conn)
+	Parameters
+	-----------
 
-def initialize_db_information(meta, conn, database_path_parameter):
-	"""def initialize_db_information(meta, conn, database_path_parameter):
-	Parameters: meta - The Metadata() object that contains the schema information.
-				conn - The connection to the engine through which we will execute the query
-				database_path_parameter - The path to the database (only useful in order to extract the database name)
+	engine - SQLAlchemy engine object
+			The engine to which the sessionmaker will be bound.
 
-	Result: The DB_INFORMATION will be initialized"""
+	database_path_parameter: string
+			A path(relative or absolute) that specifies where the new database will be located. This has to be a path to a .db file.
+			This parameter is only used to extract the name of the database, which is always the same as the name of the .db file."""
 
-	#Get the db_information Table() object
-	db_information = meta.tables['DB_INFORMATION']
+	Session = sessionmaker(bind = engine)
+	session = Session()
 
-	#Extract filename and save current time. These info will be saved in the following query
+	initialize_db_information(session, database_path_parameter)
+	initialize_scan_code(session)
+	initialize_hash_function(session)
+
+def initialize_db_information(session, database_path_parameter):
+	"""
+	Description
+	-----------
+	Initializes the DB_INFORMATION table, which contains information about a particular database.
+	DB_INFORMATION table will contain only one row.
+
+	Parameters
+	-----------
+
+	session - SQLAlchemy session object
+
+	database_path_parameter: string
+			A path(relative or absolute) that specifies where the new database will be located. This has to be a path to a .db file.
+			This parameter is only used to extract the name of the database, which is always the same as the name of the .db file."""
+
+	#Extract db_name from the name of the file
 	filename, extension = splitext(basename(database_path_parameter))
 	creation_datetime = datetime.now()
 
-	#Initialize DB_INFORMATION table
-	q = db_information.insert().values(db_name = filename, db_date_created = creation_datetime, db_date_modified = creation_datetime, db_version = 0, db_last_scan_id = 0)
-	conn.execute(q)
+	#Initialize DB_INFORMATION table with a row
+	session.add(DbInformation(db_name = filename, db_date_created = creation_datetime, db_date_modified = creation_datetime, db_version = 0, db_last_scan_id = 0))
+	session.commit()
 
-def initialize_scan_code(meta, conn):
-	"""def initialize_db_information(meta, conn, database_path_parameter):
-	Parameters: meta - The Metadata() object that contains the schema information.
-				conn - The connection to the engine through which we will execute the query
+def initialize_scan_code(session):
+	"""
+	Description
+	-----------
+	Initializes the SCAN_CODE table, which contains explainations about different results of a scan.
 
-	Result: The SCAN_CODE will be initialized"""
+	Parameters
+	-----------
+	session - SQLAlchemy session object"""
 
-	#Get the scan_code Table() object
-	scan_code = meta.tables['SCAN_CODE']
+	#More scan_return_codes will be added after the scan command is implemented
+	session.add_all([
+		ScanCode(scan_return_code = 0, scan_return_code_description = 'Successful scan'),
+		ScanCode(scan_return_code = 1, scan_return_code_description = 'Failed scan')]
+		)
+	session.commit()
 
-	#Initialize SCAN_CODE table
-	#TODO: More scan_return_codes will be added after the scan command is implemented
-	conn.execute(scan_code.insert(), [
-	   {'scan_return_code': 0, 'scan_return_code_description' : 'Successful scan'},
-	   {'scan_return_code': 1, 'scan_return_code_description' : 'Failed scan'},
-	])
-	
-def initialize_hash_function(meta, conn):
-	"""def initialize_hash_function(meta, conn):
-	Parameters: meta - The Metadata() object that contains the schema information.
-				conn - The connection to the engine through which we will execute the query
+def initialize_hash_function(session):
+	"""
+	Description
+	-----------
+	The HASH_FUNCTION table will be initialized.
+	It will contain all the hash functions of the built-in hashlib python module and the ssdeep fuzzy hash.
+	The SHAKE hash functions will have fixed-size. We do not support the calculation of SHAKE hashes with parameterized size.
 
-	Result: The HASH_FUNCTION will be initialized.
-			It will contain all the hash functions of the built-in hashlib python module and the ssdeep fuzzy hash.
-			The SHAKE hash functions will have fixed-size. We do not support the calculation of SHAKE hashes with parameterized size."""
+	Parameters
+	-----------
 
-	#Get the hash_function Table() object
-	hash_function = meta.tables['HASH_FUNCTION']
+	session - SQLAlchemy session object"""
 
-	#hash_rows is a list of dictionaries. The dictionaries have a form equivelant to a row of the HASH_FUNCTION table.
-	hash_rows = []
-
-	### PYTHON BUILT-IN HASHES ###
+	### PYTHON BUILT-IN HASHES + XXHASHES ###
 
 	#A dictionary containing the size(bits) of the hash functions of the built-in hashlib python module
-	#ATTENTION: ...add note about shake hashes...
+	#Attention: SHAKE hashes can have variable size. Our tool works with the maximum size (128 bits and 256 bits respectively)
 	hash_size = {'sha1': 160,
 				'sha384': 384,
 				'md5': 128, 
@@ -91,18 +108,13 @@ def initialize_hash_function(meta, conn):
 	#algorithms_guaranteed is imported from the built-in hashlib python module
 	for hash_name in algorithms_guaranteed:
 		#Produce a row for this hash
-		new_hash_row = {
-		'hash_function_name': hash_name,
-		'hash_function_fuzzy_flag': False,
-		'hash_function_size': hash_size[hash_name]
-		}
-		#and add it to the rows that will be inserted into the HASH_FUNCTION table
-		hash_rows.append(new_hash_row)
+		session.add(HashFunction(hash_function_name = hash_name, hash_function_fuzzy_flag = False, hash_function_size = hash_size[hash_name]))
+
 
 	### FUZZY HASHES ###
 
 	#Create and add a row for ssdeep fuzzy function with NULL size, since ssdeep does not have a fixed size.
-	hash_rows.append({'hash_function_name': 'ssdeep','hash_function_fuzzy_flag': True,'hash_function_size': None})
+	session.add(HashFunction(hash_function_name = 'ssdeep', hash_function_fuzzy_flag = True, hash_function_size = None))
 
-	#Initialize HASH_FUNCTION table by inserting the produced rows
-	conn.execute(hash_function.insert(), hash_rows)
+	#Initialize HASH_FUNCTION table by commiting the added hashes
+	session.commit()
