@@ -1,7 +1,7 @@
 from create import is_hashesdb_database, is_valid_db_path, create as create_create
 from os.path import abspath,isfile
 from os import getcwd
-
+from sys import exit as sys_exit
 from db import Db,NoDb,database_is_used
 
 class App:
@@ -73,7 +73,13 @@ class App:
 		print("------------------------------------------------------------------------------------------------------------------------------------------")
 
 	def exit(self):
-		pass
+		"""
+		Description
+		-----------
+		Exits violently with sys.exit(), without saving anything."""
+
+		print("Exiting (no changes will be saved)...")
+		sys_exit()
 
 	def threads(self,max_threads_number_parameter):
 		"""
