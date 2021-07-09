@@ -209,3 +209,36 @@ class App:
 		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object."""
 
 		self.used_database.dbinfo()
+
+	def scan(self, scan_targets_parameter, hash_functions_parameter, download_location_parameter = self.working_directory, recursion_flag_parameter = True):
+		"""
+		Description
+		-----------
+		Implementetion of the 'scan' command.
+		If a database is used then we scan the scan targets and updates the database. Otherwise it prints a warning message.
+
+		Parameters
+		-----------
+		scan_targets_parameter: list of scan targets(strings)
+			A scan target may be one of the following:
+				-a path to a local file 
+				-a path to a local directory
+				-a Github link
+				-a Gitlab link
+				-a Bitbucket link
+
+		hash_function_parameter: list of hash function names(strings)
+			hash function name: a name contained in the hash_function_name column of the HASH_FUNCTION table
+		
+		download_location_parameter: string, optional
+			Default value: the working directory
+			A path(relative or absolute) to the location in which the downloaded files will be saved.
+			The only files we download are remote scan targets(links to github/gitlab/bitbucket)
+
+		recursion_flag_parameter: boolean, optional
+			Default value: True
+			If this parameter is True, then we recursively scan the contents of all the directories.
+			Otherwise we do not scan the directories (we skip them).
+		"""
+
+		self.used_database.scan(scan_targets_parameter, hash_functions_parameter, download_location_parameter, recursion_flag_parameter)
