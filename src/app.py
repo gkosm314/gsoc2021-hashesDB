@@ -31,10 +31,10 @@ class App:
 		#Set the working directory
 		self.working_directory = getcwd()
 
-		if used_database_path_param == None:
-			#Set used_database to NoDb. NoDb class represents the 'no database' used state.
-			self.used_database = NoDb()
-		else:
+		#Set used_database to NoDb. NoDb class represents the 'no database' used state.
+		self.used_database = NoDb()
+
+		if used_database_path_param != None:
 			db_absolute_path = abspath(used_database_path_param)
 			try:
 				#If a specific database-to-use is set, try to use it
