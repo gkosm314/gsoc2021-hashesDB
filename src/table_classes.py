@@ -60,7 +60,6 @@ class File(Base):
 
    scan = relationship("Scan", back_populates="files")
    origin = relationship("Origin", back_populates="files")
-   hashes = relationship("Hash", secondary="HASH_TO_FILE")
 
 
 class Hash(Base):
@@ -71,7 +70,6 @@ class Hash(Base):
    file_id = Column(Integer, ForeignKey('FILE.file_id'))
 
    hash_function = relationship("HashFunction", back_populates="hashes")
-   files = relationship("File", secondary="HASH_TO_FILE")
 
 
 class HashFunction(Base):
@@ -81,9 +79,3 @@ class HashFunction(Base):
    hash_function_size = Column(Integer)
 
    hashes = relationship("Hash", back_populates="hash_function")
-
-
-class HashToFile(Base):
-   __tablename__ = 'HASH_TO_FILE'
-   hash_id = Column(Integer, ForeignKey('HASH.id'), primary_key = True)
-   file_id = Column(Integer, ForeignKey('FILE.file_id'), primary_key = True)
