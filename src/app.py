@@ -209,3 +209,18 @@ class App:
 		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object."""
 
 		self.used_database.dbinfo()
+
+	def hash_is_available(self, hash_function_parameter):
+		"""
+		Description
+		-----------
+		Checks if the given hash function is included in the HASH_FUNCTION table.
+		If there in no available hash function with this name, then it prints alternatives with similar name.
+
+		Parameters
+		-----------
+		hash_function_parameter: string
+			The name of the hash function whose availability we want to check 
+		"""		
+
+		self.used_database.hash_is_available(hash_function_parameter)
