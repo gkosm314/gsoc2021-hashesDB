@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from prettytable import PrettyTable
 from os.path import abspath
 
 from initialize_database import initialize_db_information
