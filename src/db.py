@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from os.path import abspath
-
+from difflib import SequenceMatcher
 from initialize_database import initialize_db_information
 from table_classes import *
 
@@ -91,6 +91,54 @@ class Db:
 	def dbinfo(self):
 		pass
 
+	def hash_is_available(self, hash_function_parameter):
+		"""
+		Description
+		-----------
+		Checks if the given hash function is included in the HASH_FUNCTION table.
+		If there in no available hash function with this name, then it prints alternatives with similar name.
+
+		Parameters
+		-----------
+		hash_function_parameter: string
+			The name of the hash function whose availability we want to check 
+		"""		
+
+		#Try to obtain data from the HASH_FUNCTION table
+		try:
+			hash_function_fetch = self.db_session.query(HashFunction).all()
+		except Exception as e:
+			print("Error: a problem occured while trying to retrive information about this database. In more detail:")
+			print(e)
+		else:
+			#If you successfully obtain info about the hash function name, get the names and put them in a list
+			available_functions = [row.hash_function_name for row in hash_function_fetch]
+
+			#Check if the specified hash function is in the list of available hash functions 
+			if hash_function_parameter in available_functions:
+				#If the hash function is available, then print relative message
+				print(f"Hash function {hash_function_parameter} is available in this database.")
+				return True
+			else:
+				#If the hash function is not available, then print relative message, find hash functions with similar name
+				print(f"Hash function {hash_function_parameter} is NOT available in this database.\n")
+
+				#Find alternative hash functions that have a similar name
+				alternative_hash_functions = []
+				for h in available_functions:
+					#Compare similarity between names. 0.6 is a threshold. High threshold => Strict when it comes to similarity
+					if SequenceMatcher(None, hash_function_parameter, h).ratio() > 0.6:
+						alternative_hash_functions.append(h)
+
+				#If the alternative hash functions list is not empty, print the list
+				if alternative_hash_functions:
+					print("Available hash functions with similar name:")
+					print(*alternative_hash_functions, sep = ', ')
+
+				#Prompt the user to find more info about the available hash functions by using the hash-functions subcommand
+				print("\nYou can use the 'hashesdb hash-functions' command to find more information about all the available hash functions.\n")
+				return False		
+
 class NoDb:
 	"""NoDb object is a object that provides the same interface as the Db object. It is used when we do NOT use a database in our application."""
 
@@ -161,6 +209,14 @@ class NoDb:
 		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
 
 		self.display_unused_warning()
+
+	def hash_is_available(self, hash_function_parameter):
+		"""
+		Description
+		-----------
+		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+		self.display_unused_warning()		
 
 def database_is_used(database_object):
 	"""
