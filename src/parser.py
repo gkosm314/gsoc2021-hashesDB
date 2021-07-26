@@ -35,7 +35,7 @@ parser_create.set_defaults(func=subcommand_create)
 #import subcommand parser
 import_help_msg = "create a new hashesdb database and import data saved in a file"
 parser_import = subparsers.add_parser('import', help= import_help_msg, description = import_help_msg)
-parser_import.add_argument('import_file_path', action = "store", help = "path to the file that will be imported (Supported file formats: TXT,CSV, JSON, YAML, XML)")
+parser_import.add_argument('import_file_path', action = "store", help = "path to the file that will be imported (Supported file formats: CSV, TSV, JSON, YAML, XML)")
 parser_import.add_argument('import_database_path', action = "store", help = "path to the new hashesdb database (.db file)")
 parser_import.add_argument('--overwrite', action='store_true', help = "flag: allows the tool to overwrite other databases when it creates a new hashesdb database")
 
@@ -45,7 +45,7 @@ parser_import.set_defaults(func=subcommand_import)
 export_help_msg = "create a new file which contains data saved in a hashesdb database"
 parser_export = subparsers.add_parser('export', help= export_help_msg, description = export_help_msg)
 parser_export.add_argument('export_database_path', action = "store", help = "path to the new hashesdb database (.db file)")
-parser_export.add_argument('export_file_path', action = "store", help = "path to the file that will be created (Supported file formats: TXT,CSV, JSON, YAML, XML)")
+parser_export.add_argument('export_file_path', action = "store", help = "path to the file that will be created (Supported file formats: TXT, CSV, TSV, JSON, YAML, XML)")
 parser_export.add_argument('--overwrite', action='store_true', help = "flag: allows the tool to overwrite files when it exports a hashesdb database")
 
 parser_export.set_defaults(func=subcommand_export)
@@ -76,7 +76,7 @@ search_descr_msg = search_help_msg + ". all the criteria are seperated with a lo
 parser_search = subparsers.add_parser('search', help= search_help_msg, description = search_descr_msg)
 parser_search.add_argument('--hash', nargs='*', action='store', metavar = "HASH_VALUE", help = "search criterion: hash value")
 parser_search.add_argument('--filename', nargs='*', action='store', metavar = "FILENAME", help = "search criterion: filename")
-parser_search.add_argument('-o','--output', default="sys.stdout", action='store', metavar = "OUTPUT_PATH", help = "path to output file, default: stdout (Supported file formats: TXT,CSV, JSON, YAML, XML)")
+parser_search.add_argument('-o','--output', default="sys.stdout", action='store', metavar = "OUTPUT_PATH", help = "path to output file, default: stdout (Supported file formats: TXT, CSV, TSV, JSON, YAML, XML)")
 
 parser_search.set_defaults(func=subcommand_search)
 
@@ -85,7 +85,7 @@ sql_help_msg = "execute SQL queries on specified database and output results in 
 parser_sql = subparsers.add_parser('sql', help= sql_help_msg, description= sql_help_msg)
 parser_sql.add_argument('database_path', action = "store", help = "path to a hashesdb database (.db file)")
 parser_sql.add_argument('sql_query_string', action = "store", help = 'an SQL query. The query must be encapsulated inside double quotation marks ("SELECT ...")')
-parser_sql.add_argument('-o','--output', default= sys.stdout, action='store', metavar = "OUTPUT_PATH", help = "path to output file, default: stdout (Supported file formats: TXT,CSV, JSON, YAML, XML)")
+parser_sql.add_argument('-o','--output', default= sys.stdout, action='store', metavar = "OUTPUT_PATH", help = "path to output file, default: stdout (Supported file formats: TXT, CSV, TSV, JSON, YAML, XML)")
 
 parser_sql.set_defaults(func=subcommand_sql)
 
@@ -135,7 +135,7 @@ parser_compare.add_argument('-t', '--targets', nargs='+', action = "store", meta
 parser_compare.add_argument('-d', '--download-location', action = "store", metavar = "DOWNLOAD_LOCATION", default = getcwd(), help = "path to location where remote targets will be downloaded to. default: current working directory")
 parser_compare.add_argument('-l', '--limit', action = "store", default = 1, type = int, metavar = "LIMIT", help = "only show results >= limit. default: 1")
 parser_compare.add_argument('-r', '--recursive', action = "store_true", help = "allows recursive comparsion with the contents of directories")
-parser_compare.add_argument('-o','--output', default="sys.stdout", action='store', metavar = "OUTPUT_PATH", help = "path to output file, default: stdout (Supported file formats: TXT,CSV, JSON, YAML, XML)")
+parser_compare.add_argument('-o','--output', default="sys.stdout", action='store', metavar = "OUTPUT_PATH", help = "path to output file, default: stdout (Supported file formats: TXT, CSV, TSV, JSON, YAML, XML)")
 
 comparsion_args = parser_compare.add_mutually_exclusive_group(required=True)
 comparsion_args.add_argument('-a','--all',help='compare targets with all the files for which the respective fuzzy hash value is stored in the database')
