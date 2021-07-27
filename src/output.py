@@ -190,7 +190,25 @@ def output_tsv(results, tsv_file_path):
 		csv_writer.writerows(results)
 
 def output_json(results, json_file_path):
-	pass
+	"""
+	Description
+	-----------
+	Formats the results using the PrettyTable module.
+	Creates a .json file or overwrites an already existing one.
+	Prints the results to the .json file.
+
+	Parameters
+	-----------
+	results: sqlalchemy.engine.Result object
+		Documentation page: https://docs.sqlalchemy.org/en/14/core/connections.html?highlight=result#sqlalchemy.engine.Result
+		
+	json_file_path - string
+		string: a path (relative or absolute) to a new .json file where the results will be printed
+	"""	
+
+	#Write the results
+	with open(json_file_path, 'w', newline='') as f:
+		json.dump(results_to_dict(results),f)		
 
 def output_yaml(results, yaml_file_path):
 	pass
