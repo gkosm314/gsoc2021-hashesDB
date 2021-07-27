@@ -1,7 +1,7 @@
 from create import is_hashesdb_database, is_valid_db_path, create as create_create
 from os.path import abspath,isfile
 from os import getcwd
-
+from sys import exit as sys_exit
 from db import Db,NoDb,database_is_used
 
 class App:
@@ -73,7 +73,13 @@ class App:
 		print("------------------------------------------------------------------------------------------------------------------------------------------")
 
 	def exit(self):
-		pass
+		"""
+		Description
+		-----------
+		Exits violently with sys.exit(), without saving anything."""
+
+		print("Exiting (no changes will be saved)...")
+		sys_exit()
 
 	def threads(self,max_threads_number_parameter):
 		"""
@@ -128,10 +134,87 @@ class App:
 		return create_create(db_absolute_path, overwrite_flag)
 
 	def use(self, path_param):
-		pass
+		"""
+		Description
+		-----------
+		Implementetion of the 'use' command.
+		Sets a database as the database we are currently using.
+		If a database is already in use, then it prints a warning message asking the user to stop using the database he is currently using if he wants to use this database.
+		Otherwise, it ensures that the file located at the given path is indeed a hashesDB database.
+		If the given file does not exist, then a hashesDB database is created in order to be used.
+
+		Parameters
+		-----------
+		path_param: string
+			A path(relative or absolute) that specifies where the database we intend to use is located. This has to be a path to a .db file.
+		
+		Results
+		-----------
+		If we use a database when the function ends, self.used_database is a Db() object which gives us an interface to work with the database.
+		Otherwise it is a NoDb() object."""
+
+		db_absolute_path = abspath(path_param)
+
+		#Check that no other database is currently used
+		if database_is_used(self.used_database):
+			print("Another database is currently used. You must stop using it before choosing another database to use.")
+			print("You can stop using the database you are currently  with the 'unuse' command. You can also find out which database you currently use with the 'status' command.")
+		else:
+			#If the database you want to use does not exist, create it
+			if not isfile(db_absolute_path):
+				#self.create returns true if the database was created successfully
+				print(f"No such database exists. Creating a hashesDB database at {db_absolute_path}...")
+				database_exists = self.create(db_absolute_path)
+			#If the database you want to use exists, make sure it is a hashesDB database
+			elif is_hashesdb_database(db_absolute_path):
+				database_exists = True
+			else:
+				print("The database you are trying to use is not a hashesDB database. This tool can only be used to manage hashesDB databases.")
+				database_exists = False
+
+			#If a hashesDB database exists (either it existed before or we just created it) then try to use it
+			if database_exists:
+				try:
+					del self.used_database #Deletes the NoDb() object
+					self.used_database = Db(db_absolute_path)
+				except Exception as e:
+					print("An error occured while trying to connect with the database. See more details below.")
+					print(e)
+					self.used_database = NoDb()
 		
 	def unuse(self):
-		pass
+		"""
+		Description
+		-----------
+		Implementetion of the 'unuse' command.
+		Checks if the database we are currently using has unsaved changes.
+		If it has unsaved changes, this function prints a relative warning.
+		Otherwise, it tries to delete the database we are currently.
+		Finally, it sets self.used_database to a NoDb() object.
+
+		Results
+		-----------
+		If the database does not have unsaved changes, then this functions sets self.used_database to a NoDb() object."""
+
+		if not database_is_used(self.used_database):
+			#You have to use a database before unusing one
+			print("No database is currently used. You can begin using a database with the 'use' command.\n")
+		else:
+			if self.used_database.has_unsaved_changes():
+				#You have to handle unsaved changes before unusing a database
+				print("There are unsaved changes made in this database. You must save or cancel the changes before you unuse this database.")
+				print("You can save the changes you have made with the 'save' command or you can cancel them with the 'rollback' command.\n")
+			else:
+				try:
+					#Try to destroy the Db() object you are currently using
+					del self.used_database
+				except Exception as e:
+					print("An error occured while trying to disconnect from the database. See more details below.")
+					print(e)
+				finally:
+					#No matter what, after unuse, self.used_database should be a NoDb() object
+					print("You are not using this database anymore.\n")
+					self.used_database = NoDb()
 
 	def status(self):
 		"""
@@ -159,8 +242,11 @@ class App:
 
 
 	def schema(self):
-		#schema command implementation here...
-		pass
+		try:
+			schema_documentation = open('../docs/schema_documentation.txt','r')
+			print(schema_documentation.read())
+		except OSError:
+			print("Error: Could not open docs/schema_documentation.txt")
 
 	def import_db(self, import_database_path_param, import_file_path_param, import_file_format_param, overwrite_flag = False):
 		#import command implementation here...
