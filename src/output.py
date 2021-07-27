@@ -231,4 +231,22 @@ def output_yaml(results, yaml_file_path):
 		yaml.dump(results_to_dict(results),f)	
 
 def output_xml(results, xml_file_path):
-	pass
+	"""
+	Description
+	-----------
+	Formats the results using the PrettyTable module.
+	Creates a .xml file or overwrites an already existing one.
+	Prints the results to the .xml file.
+
+	Parameters
+	-----------
+	results: sqlalchemy.engine.Result object
+		Documentation page: https://docs.sqlalchemy.org/en/14/core/connections.html?highlight=result#sqlalchemy.engine.Result
+		
+	xml_file_path - string
+		string: a path (relative or absolute) to a new .xml file where the results will be printed
+	"""	
+
+	with open(xml_file_path, 'w', newline='') as f:
+		xml_string = parseString(dicttoxml(results_to_dict(results)))
+		f.write(xml_string.toprettyxml())
