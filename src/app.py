@@ -295,3 +295,22 @@ class App:
 		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object."""
 
 		self.used_database.dbinfo()
+
+	def hash_functions(self, details_flag = False):
+		"""
+		Description
+		-----------
+		Implementetion of the 'hash_functions' command.
+		If a database is used then it prints the hash functions available in the specified database. Otherwise it prints a warning message.
+		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object.
+		
+		Parameters
+		-----------
+		details_flag: boolean, optional
+			Default value: False
+			If this parameter is True, then we print the whole HASJ_FUNCTION table of the specified database (function name, hash value size, fuzzy flag).
+			Otherwise we only print the names of the available hash functions.
+		"""
+
+		self.used_database.hash_functions(details_flag)
+

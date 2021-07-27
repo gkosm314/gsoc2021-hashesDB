@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from prettytable import PrettyTable
 from os.path import abspath
 
 from initialize_database import initialize_db_information
@@ -158,6 +159,46 @@ class Db:
 			print(f"Last scan #id: {dbinfo_result.db_last_scan_id}")
 			print("")
 
+	def hash_functions(self, details_flag = False):
+		"""
+		Description
+		-----------
+		Prints the HASH_FUNCTION table, which contains information about the available hash functions.
+		The function gets all the rows of the HASH_FUNCTION table and 
+
+		Parameters
+		-----------
+		details_flag: boolean, optional
+			Default value: False
+			If this parameter is True, then we print the whole HASJ_FUNCTION table of the specified database (function name, hash value size, fuzzy flag).
+			Otherwise we only print the names of the available hash functions.
+		"""
+
+		#Try to obtain data from the HASH_FUNCTION table
+		try:
+			hash_function_fetch = self.db_session.query(HashFunction).all()
+		except Exception as e:
+			print("Error: a problem occured while trying to retrive information about this database. In more detail:")
+			print(e)
+		else:
+			print("Available hash functions:")
+			#If you successfully obtain info about the hash function name, print them
+			#If the details_flag is True, then print all the info you obtained from the HASH_FUNCTION table. Otherwise, print the names only.
+			if details_flag:
+				#Define a PrettyTable and set the headers
+				hash_function_results_table = PrettyTable()
+				hash_function_results_table.field_names = ["Hash function name", "Hash Value size(bits)", "Fuzzy Hash Function"]
+
+				#Add a row to the PrettyTable for each hash function
+				for row in hash_function_fetch:
+					hash_function_results_table.add_row([row.hash_function_name,row.hash_function_size,row.hash_function_fuzzy_flag])
+		
+				#Print the PrettyTable
+				print(hash_function_results_table)
+			else:
+				#Print the names of the hash functions
+				print(*[row.hash_function_name for row in hash_function_fetch], sep = ', ')
+
 class NoDb:
 	"""NoDb object is a object that provides the same interface as the Db object. It is used when we do NOT use a database in our application."""
 
@@ -222,6 +263,14 @@ class NoDb:
 		self.display_unused_warning()
 
 	def dbinfo(self):
+		"""
+		Description
+		-----------
+		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+		self.display_unused_warning()
+
+	def hash_functions(self):
 		"""
 		Description
 		-----------
