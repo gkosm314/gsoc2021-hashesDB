@@ -115,13 +115,79 @@ def output_stdout(results):
 	print(results_table)
 
 def output_txt(results, txt_file_path):
-	pass
+	"""
+	Description
+	-----------
+	Formats the results using the PrettyTable module.
+	Creates a .txt file or overwrites an already existing one.
+	Prints the results to the .txt file.
+
+	Parameters
+	-----------
+	results: sqlalchemy.engine.Result object
+		Documentation page: https://docs.sqlalchemy.org/en/14/core/connections.html?highlight=result#sqlalchemy.engine.Result
+		
+	txt_file_path - string
+		string: a path (relative or absolute) to a new .txt file where the results will be printed
+	"""	
+
+	#Define a PrettyTable and set the headers to be equal to the names of the columns
+	results_table = PrettyTable()
+	results_table.field_names = results.keys()
+
+	#Populate the PrettyTable by insreting each row
+	for row in results:
+		results_table.add_row(row)
+
+	#Write the results
+	with open(txt_file_path, 'w') as f:
+		print(results_table, file = f)
 
 def output_csv(results, csv_file_path):
-	pass
-	
+	"""
+	Description
+	-----------
+	Formats the results using the PrettyTable module.
+	Creates a .csv file or overwrites an already existing one.
+	Prints the results to the .csv file.
+
+	Parameters
+	-----------
+	results: sqlalchemy.engine.Result object
+		Documentation page: https://docs.sqlalchemy.org/en/14/core/connections.html?highlight=result#sqlalchemy.engine.Result
+		
+	csv_file_path - string
+		string: a path (relative or absolute) to a new .csv file where the results will be printed
+	"""	
+
+	#Write the results
+	with open(csv_file_path, 'w', newline='') as f:
+		csv_writer = csv.writer(f)
+		csv_writer.writerow(results.keys())
+		csv_writer.writerows(results)
+
 def output_tsv(results, tsv_file_path):
-	pass
+	"""
+	Description
+	-----------
+	Formats the results using the PrettyTable module.
+	Creates a .tsv file or overwrites an already existing one.
+	Prints the results to the .tsv file.
+
+	Parameters
+	-----------
+	results: sqlalchemy.engine.Result object
+		Documentation page: https://docs.sqlalchemy.org/en/14/core/connections.html?highlight=result#sqlalchemy.engine.Result
+		
+	tsv_file_path - string
+		string: a path (relative or absolute) to a new .tsv file where the results will be printed
+	"""	
+
+	#Write the results
+	with open(tsv_file_path, 'w', newline='') as f:
+		csv_writer = csv.writer(f, dialect = 'excel-tab')
+		csv_writer.writerow(results.keys())
+		csv_writer.writerows(results)
 
 def output_json(results, json_file_path):
 	"""
@@ -142,7 +208,7 @@ def output_json(results, json_file_path):
 
 	#Write the results
 	with open(json_file_path, 'w', newline='') as f:
-		json.dump(results_to_dict(results),f)	
+		json.dump(results_to_dict(results),f)		
 
 def output_yaml(results, yaml_file_path):
 	pass
