@@ -81,9 +81,25 @@ class Db:
 
 	def save(self):
 		pass
-
+	
 	def rollback(self):
-		pass
+		"""
+		Description
+		-----------
+		If there are unsaved changes, it cancels them. Otherwise, it prints a warning message informing the user that there are no changes to cancel."""
+
+		if not self.has_unsaved_changes():
+			print("There are no unsaved changes to cancel.")
+		else:
+			#Try to rollback the unsaved changes
+			try:
+				self.db_session.rollback()
+			except Exception as e:
+				print("Error: a problem occured while trying to rollback changes from the database. In more detail:")
+				print(e)
+			else:
+				#If rollback was successful, then there are no unsaved changes now.
+				self.unsaved_changes_flag = False
 
 	def clear(self):
 		"""
