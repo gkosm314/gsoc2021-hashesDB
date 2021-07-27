@@ -208,10 +208,27 @@ def output_json(results, json_file_path):
 
 	#Write the results
 	with open(json_file_path, 'w', newline='') as f:
-		json.dump(results_to_dict(results),f)		
+		json.dump(results_to_dict(results),f)			
 
 def output_yaml(results, yaml_file_path):
-	pass
+	"""
+	Description
+	-----------
+	Formats the results using the PrettyTable module.
+	Creates a .yaml file or overwrites an already existing one.
+	Prints the results to the .yaml file.
+
+	Parameters
+	-----------
+	results: sqlalchemy.engine.Result object
+		Documentation page: https://docs.sqlalchemy.org/en/14/core/connections.html?highlight=result#sqlalchemy.engine.Result
+		
+	yaml_file_path - string
+		string: a path (relative or absolute) to a new .yaml file where the results will be printed
+	"""	
+
+	with open(yaml_file_path, 'w', newline='') as f:
+		yaml.dump(results_to_dict(results),f)	
 
 def output_xml(results, xml_file_path):
 	pass
