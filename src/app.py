@@ -44,13 +44,6 @@ class App:
 				self.used_database = NoDb()
 				print(e)
 
-	def help(self, command_param = None):
-		#help command implementation here...
-		pass
-
-	def version(self):
-		pass
-
 	def about(self):
 		"""
 		Description

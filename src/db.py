@@ -1,10 +1,16 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import sessionmaker
 from prettytable import PrettyTable
-from os.path import abspath
+from os import mkdir
+from os.path import abspath, isdir, join, split
 from difflib import SequenceMatcher
+import sys
+import sqlparse
 from initialize_database import initialize_db_information
 from table_classes import *
+from scan import scanner
+from shutil import rmtree
+from output import output
 
 Session = sessionmaker()
 
