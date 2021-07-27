@@ -115,7 +115,33 @@ def output_stdout(results):
 	print(results_table)
 
 def output_txt(results, txt_file_path):
-	pass
+	"""
+	Description
+	-----------
+	Formats the results using the PrettyTable module.
+	Creates a .txt file or overwrites an already existing one.
+	Prints the results to the .txt file.
+
+	Parameters
+	-----------
+	results: sqlalchemy.engine.Result object
+		Documentation page: https://docs.sqlalchemy.org/en/14/core/connections.html?highlight=result#sqlalchemy.engine.Result
+		
+	txt_file_path - string
+		string: a path (relative or absolute) to a new .txt file where the results will be printed
+	"""	
+
+	#Define a PrettyTable and set the headers to be equal to the names of the columns
+	results_table = PrettyTable()
+	results_table.field_names = results.keys()
+
+	#Populate the PrettyTable by insreting each row
+	for row in results:
+		results_table.add_row(row)
+
+	#Write the results
+	with open(txt_file_path, 'w') as f:
+		print(results_table, file = f)
 
 def output_csv(results, csv_file_path):
 	"""
