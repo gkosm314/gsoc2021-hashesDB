@@ -1,19 +1,35 @@
-from sqlalchemy import create_engine,Table, Column, BigInteger, Integer, Boolean, String, Text, DateTime, MetaData, ForeignKey
-from os.path import split,splitext,abspath,isdir,isfile,basename
+from sqlalchemy import create_engine, inspect
+from os.path import split, splitext, abspath, isdir, isfile, basename
 from os import remove
 
 from initialize_database import initialize_db
+from table_classes import *
 
 def create(database_path_parameter, overwrite_flag = False):
-	"""create(database_path_parameter, overwrite_flag = False)
+	"""
+	Description
+	-----------
 	Creates a hashesDB database located at database_path_parameter, if the given path is a .db file and the directory that contains it exists.
-	If the file already exists, it is overwritten if overwrite_flag = True. Otherwise, an error is printed."""
+	If the file already exists, it is overwritten if overwrite_flag = True. Otherwise, an error is printed.
+
+	Parameters
+	-----------
+	database_path_parameter: string
+		An absolute path that specifies where the new database will be located. This has to be a path to a .db file.
+	
+	overwrite_flag - boolean, optional
+		In case a .db file exists at the given path, then if overwrite_flag = True the file will be overwritten.
+		Otherwise an error message will be printed.
+
+	Results
+	-----------
+	Returns True if the database was created and False otherwise"""
 
 	#Check if the directory exists AND if the file is a .db file.
 	if not is_valid_db_path(database_path_parameter):
 		return False
 
-	#Handle .db file overwriting
+	#Handle .db file overwriting: if overwrite_param = True then delete the existing file, otherwise print an error message
 	if isfile(database_path_parameter):
 		if overwrite_flag:
 			delete_file(database_path_parameter)
@@ -22,15 +38,30 @@ def create(database_path_parameter, overwrite_flag = False):
 			print("Use -overwrite flag to allow overwriting.")
 			return False
 
-	#Create the database
+	#Try to create the database
 	try:
 		create_database(database_path_parameter)
 	except RuntimeError as e:
 		print(e)
+		return False
+	
+	return True
 
 
 def is_valid_db_path(database_path_parameter):
-	"""is_valid_db_path(database_path_parameter):
+	"""
+	Description
+	-----------
+	Checks that a given path refers to a file with a .db extension located an existing directory.
+	The directory must exist but the .db file may not exist.
+
+	Parameters
+	-----------
+	database_path_parameter: string
+		A path(relative or absolute) that specifies where the new database will be located. This has to be a path to a .db file.
+
+	Results
+	-----------
 	Returns True if database_path_parameter is a .db file located in an existing directory. Otherwise it returns False."""
 	
 	#Convert parameter to absolute path, in case it is a relative path.
@@ -52,11 +83,21 @@ def is_valid_db_path(database_path_parameter):
 	return True
 		
 def delete_file(database_path_parameter):
-	"""delete_file(database_path_parameter):
-	Deletes a .db database file located at database_path_parameter. Raises error if the directory/file does not exist."""
+	"""
+	Description
+	-----------
+	Deletes a .db database file located at database_path_parameter. 
+	Prints an error message if the path refers to a directory or a non-existing file
 
+	Parameters
+	-----------
+	database_path_parameter: string
+		A path(relative or absolute) that specifies where the new database will be located. This has to be a path to a .db file."""
+	
 	#Convert the path to absolute path in case it is relative path.
 	database_path = abspath(database_path_parameter)
+	
+	#Try to remove the file
 	try:
 		remove(database_path)
 	except IsADirectoryError:
@@ -67,9 +108,20 @@ def delete_file(database_path_parameter):
 		print(f"An unexpected error occured while deleting file {database_path}.")
 
 def create_database(database_path_parameter):
-	"""create_database(database_path_parameter):
-	Creates a hashesDB database located at database_path_parameter.
-	If a file already exists at the given path, an exception is raised."""
+	"""
+	Description
+	-----------
+	Compares the schema of a database with the expected schema of a hashesDB database, in order to find out if a database is a hashesDB database.
+
+	Parameters
+	-----------
+	database_path_parameter: string
+		An absolute path that specifies where the new database will be located. This has to be a path to a .db file.
+
+	Raises
+	-----------
+	Raises a RuntimeError if the database we try to create already exists, since overwriting should be handled before calling this function
+	Raises a RuntimeError if the creation of the database fails."""
 
 	#Check if a file already exists at the given path.
 	if isfile(database_path_parameter):
@@ -77,89 +129,10 @@ def create_database(database_path_parameter):
 
 	engine_url = "sqlite:///" + database_path_parameter
 
-	#Create a database. The .db file will be automatically created after the first query execution
-	#After the creation the DB_INFORMATION, SCAN_CODE and HASH_FUNCTION tables will be initialized
+	#Create a database. The .db file will be automatically created after the execution of engine.connect() 
+	#After the creation, the DB_INFORMATION, SCAN_CODE and HASH_FUNCTION tables will be initialized by initialize_db
 	engine = create_engine(engine_url, echo = False)
 	with engine.connect() as conn:
-		meta = create_tables(engine, conn)
-		initialize_db(meta, conn, database_path_parameter)
-
-def create_tables(engine, conn):
-	"""create_tables(engine):
-	Creates the tables specified by the database schema and sets datatypes, primary keys and foreign keys.
-	Returns the Metadata() object that contains the schema info"""
-
-	meta = MetaData()
-
-	#Define the tables included in the schema
-	db_information = Table(
-		'DB_INFORMATION', meta,
-		Column('db_name', String, primary_key = True),
-		Column('db_date_created', DateTime),
-		Column('db_date_modified', DateTime),
-		Column('db_version', Integer),
-		Column('db_last_scan_id', Integer)
-		)
-
-	scan_code = Table(
-		'SCAN_CODE', meta,
-		Column('scan_return_code', Integer, primary_key = True),
-		Column('scan_return_code_description', Integer)
-		)
-
-	scan = Table(
-		'SCAN', meta,
-		Column('scan_id', Integer, primary_key = True),
-		Column('scan_hostname', String),
-		Column('scan_command_executed', Text),
-		Column('scan_date', DateTime),
-		Column('scan_return_code', Integer, ForeignKey('SCAN_CODE.scan_return_code'))
-		)
-
-	file = Table(
-		'FILE', meta,
-		Column('file_id', Integer, primary_key = True),
-		Column('scan_id', Integer, ForeignKey('SCAN.scan_id')),
-		Column('file_name', String),
-		Column('file_extension', String),
-		Column('file_path', String),
-		Column('file_size', BigInteger),
-		Column('file_date_created', DateTime),
-		Column('file_date_modified', DateTime),
-		Column('swh_known', Boolean),
-		Column('file_updated', Boolean),
-		Column('origin_id', Integer, ForeignKey('ORIGIN.origin_id'))
-		)
-
-	origin = Table(
-		'ORIGIN', meta,
-		Column('origin_id', Integer, primary_key = True),
-		Column('origin_is_local_flag', Boolean),
-		Column('origin_url_or_hostname', String)
-		)
-
-	hash = Table(
-		'HASH', meta,
-		Column('hash_id', Integer, primary_key = True),
-		Column('hash_value', String),
-		Column('hash_function_name', String, ForeignKey('HASH_FUNCTION.hash_function_name')),
-		Column('file_id', Integer, ForeignKey('FILE.file_id'))
-		)
-
-	hash_function = Table(
-		'HASH_FUNCTION', meta,
-		Column('hash_function_name', String, primary_key = True),
-		Column('hash_function_fuzzy_flag', Boolean),
-		Column('hash_function_size', Integer)
-		)
-
-	swh_info = Table(
-		'SWH_INFO', meta,
-		Column('file_id', Integer, ForeignKey('FILE.file_id')),
-		Column('swh_id_core', Integer),
-		Column('swh_id_qualifiers', Integer)
-		)
-
-	#Create the tables
-	meta.create_all(engine)
-	return meta
+		#Try to create the tables and to initialize them
+		Base.metadata.create_all(engine)
+		initialize_db(engine, database_path_parameter)
