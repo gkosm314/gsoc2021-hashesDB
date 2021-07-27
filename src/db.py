@@ -8,7 +8,7 @@ import sys
 import sqlparse
 from initialize_database import initialize_db_information
 from table_classes import *
-from scan import scanner
+#from scan import scanner
 from shutil import rmtree
 from output import output
 
