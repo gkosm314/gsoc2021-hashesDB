@@ -108,7 +108,23 @@ class Db:
 			self.db_session.commit()
 
 	def dbinfo(self):
-		pass
+		"""
+		Description
+		-----------
+		Prints the only row in the DB_INFORMATION table, which contains information about this particular database.."""
+
+		try:
+			dbinfo_result = self.db_session.query(DbInformation).one()
+		except Exception as e:
+			print("Error: a problem occured while trying to retrive information about this database. In more detail:")
+			print(e)
+		else:
+			print(f"Database name: {dbinfo_result.db_name}")
+			print(f"Date created: {dbinfo_result.db_date_created}")
+			print(f"Date modified: {dbinfo_result.db_date_modified}")
+			print(f"Database version: {dbinfo_result.db_version}")
+			print(f"Last scan #id: {dbinfo_result.db_last_scan_id}")
+			print("")
 
 class NoDb:
 	"""NoDb object is a object that provides the same interface as the Db object. It is used when we do NOT use a database in our application."""
