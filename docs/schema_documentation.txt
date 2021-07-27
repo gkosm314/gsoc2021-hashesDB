@@ -1,0 +1,166 @@
+DB_INFORMATION
+-------------
+	Primary key = db_name
+
+	db_name
+		Type: String
+		Description: The name of this hashesdb database.
+
+	db_date_created
+		Type: DateTime
+		Description: The date and time this hashesdb database was created.
+
+	db_version
+		Type: Integer
+		Description: The version of this hashesdb database. Each time we make a changes, this number increases.
+
+	db_date_modified
+		Type: DateTime
+		Description: The last date and time this hashesdb database was modified.
+
+	db_last_scan_id
+		Type: Integer
+		Description: The id of the last scan that has been performed to insert/update data in this hashesdb database.
+					 Refers to the SCAN table.
+
+
+SCAN_CODE
+-------------
+	Primary key = scan_return_code
+
+	scan_return_code
+		Type: Integer
+		Description: Codes that a scan may return. For example: 0 means successful scan.
+
+	scan_return_code_description
+		Type: String
+		Description: A description that explains what this particular scan return code means.
+
+
+SCAN
+-------------
+	Primary key = scan_id
+
+	scan_id
+		Type: Integer
+		Description: A unique id used to identify this particular scan.
+
+	scan_hostname
+		Type: String
+		Description: The hostname of the machine that perfomed this scan.
+
+	scan_date
+		Type: DateTime
+		Description: The date and time this particular scan was performed.
+
+	scan_return_code
+		Type: Integer
+		Description: The code that the scan returned.
+					 Refers to the SCAN_CODE table.
+
+
+ORIGIN
+-------------
+	Primary key = origin_id
+
+	origin_id
+		Type: Integer
+		Description: A unique id used to identify this particular origin.
+
+	origin_is_local_flag
+		Type: Boolean
+		Description: A flag that is TRUE if the origin was 
+
+	origin_url_or_hostname:
+		Type: String
+		Description: If the origin is a local machine, then we store here the its hostname. Otherwise, store here the remote URL that leads to the remote origin.
+
+
+FILE
+-------------
+	Primary key = file_id
+
+	file_id
+		Type: Integer
+		Description: A unique id used to identify this particular file.
+
+	scan_id
+		Type: Integer
+		Description: The id of the scan during which this file was scanned.
+
+	file_name
+		Type: String
+		Description: The name of the file
+
+	file_extension
+		Type: String
+		Description: The extension of the file. For example: .html, .py, .mp4
+
+	file_path
+		Type: String
+		Description: The absolute path at which the file is located at
+
+	file_size
+		Type: BigInteger
+		Description: The size of the file (in bytes).
+
+	file_date_created
+		Type: DateTime
+		Description: The date and time this particular file was created.
+
+	file_date_modified
+		Type: DateTime
+		Description: The date and time this particular file was modified.
+
+	swh_known
+		Type: Boolean
+		Description: If this is TRUE, then this file is included the Software Heritage archive. Otherwise it is not.
+
+	origin_id
+		Type: Integer
+		Description: The id of the origin from which this file was retrieved.
+					 Refers to the ORIGIN table
+
+HASH
+-------------
+	Primary key = hash_id
+
+	hash_id
+		Type: Integer
+		Description: A unique id used to identify this particular hash value.
+
+	hash_value
+		Type: String
+		Description: A hash value.
+
+	hash_function_name
+		Type: String
+		Description: The name of the hash function used to calculate this hash value.
+
+	file_id
+		Type: Integer
+		Description: The id of the file this hash value was calculated for.
+
+
+HASH_FUNCTION
+-------------
+	Primary key = hash_function_name
+
+	hash_function_name
+		Type: Strings
+		Description: A unique name used to identify this particular hash function.
+
+	hash_function_fuzzy_flag
+		Type: Boolean
+		Description: If this is TRUE, then this hash function is a fuzzy hash function. Otherwise it is not.
+
+	hash_function_size
+		Type: Integer
+		Description: The size of the output of the hash function. If the has function does not have a fixed-size output, then this is set to NULL.
+
+
+HASH_TO_FILE
+-------------
+	Primary key = hash_id + file_id
+
+	This table has two attirbutes that refer to the primary key of the HASH table and to the primary key of the FILE table. This table is used to represent the many-to-many relationship between hash values and files.
