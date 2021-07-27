@@ -63,6 +63,7 @@ def output(results, output_path_parameter = sys.stdout):
 		else:
 			print("This output file format is not supported by hashesdb.")
 			print("Supported file formats: TXT, CSV, TSV, JSON, YAML, XML.")
+			return False
 
 	return True
 
