@@ -134,7 +134,53 @@ class App:
 		return create_create(db_absolute_path, overwrite_flag)
 
 	def use(self, path_param):
-		pass
+		"""
+		Description
+		-----------
+		Implementetion of the 'use' command.
+		Sets a database as the database we are currently using.
+		If a database is already in use, then it prints a warning message asking the user to stop using the database he is currently using if he wants to use this database.
+		Otherwise, it ensures that the file located at the given path is indeed a hashesDB database.
+		If the given file does not exist, then a hashesDB database is created in order to be used.
+
+		Parameters
+		-----------
+		path_param: string
+			A path(relative or absolute) that specifies where the database we intend to use is located. This has to be a path to a .db file.
+		
+		Results
+		-----------
+		If we use a database when the function ends, self.used_database is a Db() object which gives us an interface to work with the database.
+		Otherwise it is a NoDb() object."""
+
+		db_absolute_path = abspath(path_param)
+
+		#Check that no other database is currently used
+		if database_is_used(self.used_database):
+			print("Another database is currently used. You must stop using it before choosing another database to use.")
+			print("You can stop using the database you are currently  with the 'unuse' command. You can also find out which database you currently use with the 'status' command.")
+		else:
+			#If the database you want to use does not exist, create it
+			if not isfile(db_absolute_path):
+				#self.create returns true if the database was created successfully
+				print(f"No such database exists. Creating a hashesDB database at {db_absolute_path}...")
+				database_exists = self.create(db_absolute_path)
+			#If the database you want to use exists, make sure it is a hashesDB database
+			elif is_hashesdb_database(db_absolute_path):
+				database_exists = True
+			else:
+				print("The database you are trying to use is not a hashesDB database. This tool can only be used to manage hashesDB databases.")
+				database_exists = False
+
+			#If a hashesDB database exists (either it existed before or we just created it) then try to use it
+			if database_exists:
+				try:
+					del self.used_database #Deletes the NoDb() object
+					self.used_database = Db(db_absolute_path)
+				except Exception as e:
+					print("An error occured while trying to connect with the database. See more details below.")
+					print(e)
+					self.used_database = NoDb()
 		
 	def unuse(self):
 		"""
