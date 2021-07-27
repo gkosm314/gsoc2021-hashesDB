@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, inspect
+from sqlalchemy import create_engine, MetaData
 from os.path import split, splitext, abspath, isdir, isfile, basename
 from os import remove
 
@@ -133,6 +133,66 @@ def create_database(database_path_parameter):
 	#After the creation, the DB_INFORMATION, SCAN_CODE and HASH_FUNCTION tables will be initialized by initialize_db
 	engine = create_engine(engine_url, echo = False)
 	with engine.connect() as conn:
-		#Try to create the tables and to initialize them
-		Base.metadata.create_all(engine)
-		initialize_db(engine, database_path_parameter)
+		try:
+			#Try to create the tables and to initialize them
+			Base.metadata.create_all(engine)
+			initialize_db(engine, database_path_parameter)
+		except Exception as e:
+			#Delete the created database if you the creation of the hashesDB database fails
+			delete_file(database_path_parameter)
+			print(e)
+			raise RuntimeError("Error: An error occured while creating the database.")
+
+def is_hashesdb_database(database_path_parameter):
+	"""
+	Description
+	-----------
+	Compares the schema of a database with the expected schema of a hashesDB database, in order to find out if a database is a hashesDB database.
+
+	Parameters
+	-----------
+	database_path_parameter: string
+		A path(relative or absolute) that specifies where the new database will be located. This has to be a path to a .db file.
+
+	Results
+	-----------
+	Returns True if a database has a hashesDB schema. Otherwise it returns False."""
+
+	#Convert the path to absolute path in case it is relative path.
+	database_path = abspath(database_path_parameter)
+
+	#Check that the given path refers to a .db file
+	if not is_valid_db_path(database_path):
+		return False
+
+	#Check that the db file exists
+	if not isfile(database_path):
+		return False
+
+	#Create an engine to connect with the .db file whose schema we want to compare with the hashesDB schema
+	engine_url = "sqlite:///" + database_path
+	engine = create_engine(engine_url, echo = False)
+
+	#Create a metadata object and load the schema of the .db file
+	engine_metadata = MetaData()
+	engine_metadata.reflect(bind = engine)
+
+	#Get a list of SQLAlchemy Table objects sorted in order of foreign key dependency for the schema of the .db file
+	database_tables = engine_metadata.sorted_tables
+	#Get a list of SQLAlchemy Table objects sorted in order of foreign key dependency for the hashesDB schema (from table_classes.py)
+	schema_tables	= Base.metadata.sorted_tables
+
+	#If the schema of the .db file has more or less tables than the hashesDB schema, then the .db file is not a hashesDB database
+	if len(database_tables) != len(schema_tables):
+		return False
+
+	#Compare each table 
+	#Given that both database_tables and schema_tables are sorted using the same methodology,
+	#the first Table object of the database_schema list has to be the equivelant with the first Table object of the schema_table list
+	for db_table, schema_table in zip(database_tables, schema_tables):
+		#If we find two Table objects that are not equivelant, then the schema of the .db file does not follow the hashesDB schema
+		#For the .compare method: check the documentation page of the SQLAlchemy Table object  
+		if not db_table.compare(schema_table):
+			return False
+
+	return True

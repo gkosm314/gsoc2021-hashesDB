@@ -1,6 +1,12 @@
+dicttoxml==1.7.4
 greenlet==1.1.0
 importlib-metadata==4.5.0
 pkg-resources==0.0.0
+prettytable==2.1.0
+PyYAML==5.4.1
 SQLAlchemy==1.4.17
+sqlparse==0.4.1
 typing-extensions==3.10.0.0
+wcwidth==0.2.5
+xxhash==2.0.2
 zipp==3.4.1
