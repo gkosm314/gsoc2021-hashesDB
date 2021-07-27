@@ -165,8 +165,11 @@ class App:
 
 
 	def schema(self):
-		#schema command implementation here...
-		pass
+		try:
+			schema_documentation = open('../docs/schema_documentation.txt','r')
+			print(schema_documentation.read())
+		except OSError:
+			print("Error: Could not open docs/schema_documentation.txt")
 
 	def import_db(self, import_database_path_param, import_file_path_param, import_file_format_param, overwrite_flag = False):
 		#import command implementation here...
