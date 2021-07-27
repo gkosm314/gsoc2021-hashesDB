@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from prettytable import PrettyTable
 from os.path import abspath
 from difflib import SequenceMatcher
 from initialize_database import initialize_db_information
@@ -80,16 +81,123 @@ class Db:
 		return self.unsaved_changes_flag
 
 	def save(self):
-		pass
+		"""
+		Description
+		-----------
+		If there are unsaved changes, it saves them. Otherwise, it prints a warning message informing the user that there are no changes to save."""
+
+		if not self.has_unsaved_changes():
+			print("There are no unsaved changes to be commited")
+		else:
+			#Try to save the unsaved changes
+			try:
+				self.db_session.commit()
+			except Exception as e:
+				print("Error: a problem occured while trying to commit the changes to the database. In more detail:")
+				print(e)
+			else:
+				#If save was successful, then there are no unsaved changes now.
+				self.unsaved_changes_flag = False
 
 	def rollback(self):
-		pass
+		"""
+		Description
+		-----------
+		If there are unsaved changes, it cancels them. Otherwise, it prints a warning message informing the user that there are no changes to cancel."""
+
+		if not self.has_unsaved_changes():
+			print("There are no unsaved changes to cancel.")
+		else:
+			#Try to rollback the unsaved changes
+			try:
+				self.db_session.rollback()
+			except Exception as e:
+				print("Error: a problem occured while trying to rollback changes from the database. In more detail:")
+				print(e)
+			else:
+				#If rollback was successful, then there are no unsaved changes now.
+				self.unsaved_changes_flag = False
 
 	def clear(self):
-		pass
+		"""
+		Description
+		-----------
+		Clear the database from all its data, except the data that were inserted during the initialisation of the database."""
+
+		print("Clearing the database...")
+		try:
+			self.db_session.query(Scan).delete()
+			self.db_session.query(Origin).delete()
+			self.db_session.query(File).delete()
+			self.db_session.query(Hash).delete()
+			self.db_session.query(SwhInfo).delete()
+			self.db_session.query(DbInformation).delete()
+			initialize_db_information(self.db_session, self.get_database_path())
+		except Exception as e:
+			self.db_session.rollback()
+			print("Clearing the database failed...")		
+		else:
+			print("Cleared the database successfully.")
+			self.db_session.commit()
 
 	def dbinfo(self):
-		pass
+		"""
+		Description
+		-----------
+		Prints the only row in the DB_INFORMATION table, which contains information about this particular database.."""
+
+		try:
+			dbinfo_result = self.db_session.query(DbInformation).one()
+		except Exception as e:
+			print("Error: a problem occured while trying to retrive information about this database. In more detail:")
+			print(e)
+		else:
+			print(f"Database name: {dbinfo_result.db_name}")
+			print(f"Date created: {dbinfo_result.db_date_created}")
+			print(f"Date modified: {dbinfo_result.db_date_modified}")
+			print(f"Database version: {dbinfo_result.db_version}")
+			print(f"Last scan #id: {dbinfo_result.db_last_scan_id}")
+			print("")
+
+	def hash_functions(self, details_flag = False):
+		"""
+		Description
+		-----------
+		Prints the HASH_FUNCTION table, which contains information about the available hash functions.
+		The function gets all the rows of the HASH_FUNCTION table and 
+
+		Parameters
+		-----------
+		details_flag: boolean, optional
+			Default value: False
+			If this parameter is True, then we print the whole HASJ_FUNCTION table of the specified database (function name, hash value size, fuzzy flag).
+			Otherwise we only print the names of the available hash functions.
+		"""
+
+		#Try to obtain data from the HASH_FUNCTION table
+		try:
+			hash_function_fetch = self.db_session.query(HashFunction).all()
+		except Exception as e:
+			print("Error: a problem occured while trying to retrive information about this database. In more detail:")
+			print(e)
+		else:
+			print("Available hash functions:")
+			#If you successfully obtain info about the hash function name, print them
+			#If the details_flag is True, then print all the info you obtained from the HASH_FUNCTION table. Otherwise, print the names only.
+			if details_flag:
+				#Define a PrettyTable and set the headers
+				hash_function_results_table = PrettyTable()
+				hash_function_results_table.field_names = ["Hash function name", "Hash Value size(bits)", "Fuzzy Hash Function"]
+
+				#Add a row to the PrettyTable for each hash function
+				for row in hash_function_fetch:
+					hash_function_results_table.add_row([row.hash_function_name,row.hash_function_size,row.hash_function_fuzzy_flag])
+		
+				#Print the PrettyTable
+				print(hash_function_results_table)
+			else:
+				#Print the names of the hash functions
+				print(*[row.hash_function_name for row in hash_function_fetch], sep = ', ')
 
 	def hash_is_available(self, hash_function_parameter):
 		"""
@@ -210,7 +318,7 @@ class NoDb:
 
 		self.display_unused_warning()
 
-	def hash_is_available(self, hash_function_parameter):
+def hash_is_available(self, hash_function_parameter):
 		"""
 		Description
 		-----------
