@@ -118,11 +118,51 @@ def output_txt(results, txt_file_path):
 	pass
 
 def output_csv(results, csv_file_path):
-	pass
+	"""
+	Description
+	-----------
+	Formats the results using the PrettyTable module.
+	Creates a .csv file or overwrites an already existing one.
+	Prints the results to the .csv file.
+
+	Parameters
+	-----------
+	results: sqlalchemy.engine.Result object
+		Documentation page: https://docs.sqlalchemy.org/en/14/core/connections.html?highlight=result#sqlalchemy.engine.Result
+		
+	csv_file_path - string
+		string: a path (relative or absolute) to a new .csv file where the results will be printed
+	"""	
+
+	#Write the results
+	with open(csv_file_path, 'w', newline='') as f:
+		csv_writer = csv.writer(f)
+		csv_writer.writerow(results.keys())
+		csv_writer.writerows(results)
 
 def output_tsv(results, tsv_file_path):
-	pass
-	
+	"""
+	Description
+	-----------
+	Formats the results using the PrettyTable module.
+	Creates a .tsv file or overwrites an already existing one.
+	Prints the results to the .tsv file.
+
+	Parameters
+	-----------
+	results: sqlalchemy.engine.Result object
+		Documentation page: https://docs.sqlalchemy.org/en/14/core/connections.html?highlight=result#sqlalchemy.engine.Result
+		
+	tsv_file_path - string
+		string: a path (relative or absolute) to a new .tsv file where the results will be printed
+	"""	
+
+	#Write the results
+	with open(tsv_file_path, 'w', newline='') as f:
+		csv_writer = csv.writer(f, dialect = 'excel-tab')
+		csv_writer.writerow(results.keys())
+		csv_writer.writerows(results)
+
 def output_json(results, json_file_path):
 	pass
 
