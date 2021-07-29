@@ -48,6 +48,7 @@ class Db:
 
 		#Try begin a session
 		try:
+			self.insp = inspect(engine)
 			self.db_session = Session()
 			self.db_session.begin()
 		except Exception as e:
@@ -164,6 +165,89 @@ class Db:
 			print(f"Database version: {dbinfo_result.db_version}")
 			print(f"Last scan #id: {dbinfo_result.db_last_scan_id}")
 			print("")
+
+	def export(self, export_folder_path_param, export_file_format_param, overwrite_flag = False):
+		"""
+		Description
+		-----------
+		
+
+		Paramaters
+		-----------
+		export_file_path_param - string
+			Path to the folder where the table will be exported
+
+		export_file_format_param - string
+			File format in which the tables will be exported
+			Supported file formats: TXT, CSV, TSV, JSON, YAML, XML
+
+		overwrite_flag - boolean, optional
+			In case a .db file exists at the given path, then if overwrite_flag = True the file will be overwritten.
+			Otherwise an error message will be printed.
+		
+		Result
+		-----------
+		A folder which contains one file for each table of the database. The file has a specified format."""
+
+
+		folder_abs_path = abspath(export_folder_path_param)
+
+		parent_dir, folder_name = split(folder_abs_path)
+
+		#Check if the parent direcory exists.
+		if not isdir(parent_dir):
+			print(f"Error: Directory {parent_dir} does not exist.")
+			return False
+
+		#Check if the directory we want to create exists
+		if isdir(folder_abs_path):
+			#If the directory exists, then overwrite it or print an error message
+			if overwrite_flag:
+				try:
+					rmtree(folder_abs_path)
+				except Exception as e:
+					print(f"Error: Could not remove {folder_abs_path}. In more detail:")
+					print(e)
+					return False
+			else:	
+				print(f"Error: Directory {folder_abs_path} already exists.")
+				print("Use -overwrite flag to allow overwriting.")
+				return False
+
+		#Create the directory, where the data will be exported at
+		try:
+			mkdir(folder_abs_path)
+		except Exception as e:
+			print("Error: Could not create the folder in which the exported data will be saved. In more detail:")
+			print(e)
+			return False
+
+		#Get the names of the tables through the SQLAlchemy engine Inspector
+		table_names_list = self.insp.get_table_names()
+
+		#For each table, select all the records and export them to an new file (that has the specified format)
+		for table_name in table_names_list:
+
+			#Write and execute the SELECT query
+			select_query_string = f"SELECT * FROM {table_name}"
+			select_query = text(select_query_string)
+			table_data = self.db_session.execute(select_query)
+
+			table_filename = table_name + '.' + export_file_format_param #Name of the new file is the name of the table + the extension
+			table_file_path = join(folder_abs_path, table_filename) #Path of the new file
+
+			#Output the table in the file
+			output_successful_flag = output(table_data, table_file_path)
+			if not output_successful_flag:
+				print("Error: something went wrong during the creation of a file. Cancelling export...")
+				try:
+					rmtree(folder_abs_path)
+				except Exception as e:
+					print(f"Error: Could not remove {folder_abs_path}. In more detail:")
+					print(e)
+					return False
+
+		return True
 
 	def hash_functions(self, details_flag = False):
 		"""
@@ -324,13 +408,29 @@ class NoDb:
 
 		self.display_unused_warning()
 
-def hash_is_available(self, hash_function_parameter):
+	def export(export_file_path_param, export_file_format_param, overwrite_flag = False):
 		"""
 		Description
 		-----------
 		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
 
-		self.display_unused_warning()		
+		self.display_unused_warning()	
+
+	def hash_functions(self, details_flag):
+		"""
+		Description
+		-----------
+		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+		self.display_unused_warning()
+
+	def hash_is_available(self, hash_function_parameter):
+			"""
+			Description
+			-----------
+			This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+			self.display_unused_warning()		
 
 def database_is_used(database_object):
 	"""
