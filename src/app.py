@@ -2,6 +2,7 @@ from create import is_hashesdb_database, is_valid_db_path, create as create_crea
 from os.path import abspath,isfile
 from os import getcwd
 from sys import exit as sys_exit
+import sys
 from db import Db,NoDb,database_is_used
 
 class App:
@@ -304,6 +305,38 @@ class App:
 		"""		
 
 		self.used_database.hash_is_available(hash_function_parameter)
+
+	def sql_query(self, sql_query_string_parameter, output_path_parameter = sys.stdout, autocommit_parameter = False):
+		"""
+		Description
+		-----------
+		Implementetion of the 'sql' command.
+		If a database is used then it prints the hash functions available in the specified database. Otherwise it prints a warning message.
+		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object.
+		
+		Parameters
+		-----------
+		sql_query_string_parameter: string, optional
+			This is a SQL query encapsulated inside double quotes (For example: "SELECT...").
+			The double quotes are included in the string.		
+
+		output_path_parameter: string
+			Default: sys.stdout
+			This is a path to a file, where the output will be printed/saved.
+			Supported file formats: TXT, CSV, TSV, JSON, YAML, XML
+
+		autocommit_parameter: boolean, optional
+			Default: False
+			In case this flag is set to True, the changes will be commited to the before the function ends.
+			The main intention of this flag is to make sure the changes made by 'DELETE' SQL queries are saved when the sql subcommand is executed from the terminal.
+
+			IMPORTANT NOTE: this flag is supposed to be set to True only when this method is called in order to execute a standalone command.
+			If you set this parameter ro True when you execute a sql command from the REPL, it is possible that changes made before the execution
+			of the SQL query will be commited too.
+
+		"""
+
+		self.used_database.sql_query(sql_query_string_parameter, output_path_parameter, autocommit_parameter)
 
 	def hash_functions(self, details_flag = False):
 		"""
