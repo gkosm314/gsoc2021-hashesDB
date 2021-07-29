@@ -63,12 +63,12 @@ class ParserTemplate:
 		self.parser_search = self.subparsers.add_parser('search', help= search_help_msg, description = search_descr_msg)
 		self.parser_search.add_argument('--hash', nargs='*', action='store', metavar = "HASH_VALUE", help = "search criterion: hash value")
 		self.parser_search.add_argument('--filename', nargs='*', action='store', metavar = "FILENAME", help = "search criterion: filename")
-		self.parser_search.add_argument('-o','--output', default="sys.stdout", action='store', metavar = "OUTPUT_PATH", help = "path to output file, default: stdout (Supported file formats: TXT, CSV, TSV, JSON, YAML, XML)")
+		self.parser_search.add_argument('-o','--output', default= sys.stdout, action='store', metavar = "OUTPUT_PATH", help = "path to output file, default: stdout (Supported file formats: TXT, CSV, TSV, JSON, YAML, XML)")
 
 		#sql subcommand parser
 		sql_help_msg = "execute SQL queries on specified database and output results in specified format"
 		self.parser_sql = self.subparsers.add_parser('sql', help= sql_help_msg, description= sql_help_msg)
-		self.parser_sql.add_argument('-q','--query', metavar = 'SQL_QUERY_STRING', action = "store", help = 'an SQL query. The query must be encapsulated inside double quotation marks ("SELECT ...")')
+		self.parser_sql.add_argument('-q','--query', required = True, metavar = 'SQL_QUERY_STRING', action = "store", help = 'an SQL query. The query must be encapsulated inside double quotation marks ("SELECT ...")')
 		self.parser_sql.add_argument('-o','--output', default= sys.stdout, action='store', metavar = "OUTPUT_PATH", help = "path to output file, default: stdout (Supported file formats: TXT, CSV, TSV, JSON, YAML, XML)")
 
 		#dbinfo subcommand parser
@@ -192,7 +192,7 @@ class TerminalParser(ParserTemplate):
 		pass
 
 	def subcommand_search(self,args):
-		pass
+		App(args.database).search(args.hash, args.filename, args.output)
 
 	def subcommand_sql(self,args):
 		App(args.database).sql_query(args.query, args.output, False)
@@ -321,7 +321,7 @@ class ReplParser(ParserTemplate):
 		pass
 
 	def repl_search(self,args):
-		pass
+		self.app.search(args.hash, args.filename, args.output)
 
 	def repl_sql(self,args):
 		self.app.sql_query(args.query, args.output, True)
