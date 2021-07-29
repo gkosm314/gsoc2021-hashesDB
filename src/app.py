@@ -2,6 +2,7 @@ from create import is_hashesdb_database, is_valid_db_path, create as create_crea
 from os.path import abspath,isfile
 from os import getcwd
 from sys import exit as sys_exit
+import sys
 from db import Db,NoDb,database_is_used
 
 class App:
@@ -245,9 +246,29 @@ class App:
 		#import command implementation here...
 		pass
 
-	def export_db(self, export_database_path_param, export_file_path_param, export_file_format_param, overwrite_flag = False):
-		#export command implementation here...
-		pass
+	def export_db(self, export_file_path_param, export_file_format_param, overwrite_flag = False):
+		"""
+		Description
+		-----------
+		Implementetion of the 'export' command.
+		If a database is used and it has unsaved changes then it saves them. Otherwise it prints a warning message.
+		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object.
+
+		Paramaters
+		-----------
+		export_file_path_param - string
+			Path to the folder where the table will be exported
+
+		export_file_format_param - string
+			File format in which the tables will be exported
+			Supported file formats: TXT, CSV, TSV, JSON, YAML, XML
+
+		overwrite_flag - boolean, optional
+			In case a .db file exists at the given path, then if overwrite_flag = True the file will be overwritten.
+			Otherwise an error message will be printed.
+		"""
+		
+		self.used_database.export(export_file_path_param, export_file_format_param, overwrite_flag)
 
 	def save(self):
 		"""
