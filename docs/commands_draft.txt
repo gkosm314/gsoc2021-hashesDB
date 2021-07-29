@@ -22,147 +22,73 @@ hashesdb about
 hashesdb schema
 	Prints schema documentation
 
-hashesdb create database_path [--overwrite]
+hashesdb create -d|--database DATABASE_PATH
+				[--overwrite]
+
 	Creates a hashesdb database at a given path
 
-hashesdb import import_file_path import_database_path [--overwrite]
+hashesdb import -f|--folder IMPORT_FOLDER_PATH
+				-d|--database IMPORT_DATABASE_PATH
+				-e|--extension IMPORT_FILE_FORMAT
+				[--overwrite]
+
 	Imports from a file to a database
 
-hashesdb export export_database_path export_file_path [--overwrite]
+hashesdb export -f|--folder EXPORT_FOLDER_PATH
+				-d|--database EXPORT_DATABASE_PATH
+				-e|--extension EXPORT_FILE_FORMAT
+				[--overwrite]
+
 	Exports from a database to a file
 
-hashesdb use database_path
+hashesdb use -d|--database DATABASE_PATH
 	Starts an interactive dialog (REPL) using the specified database
 
-hashesdb scan database_path [-t|--targets TARGETS_PARAMETERS]
-							[-c|--calculate HASH_FUNCTIONS]
-							[-d|--download DOWNLOAD_PATH]
-							[-r|--recursive]
-							[-j|--jobs N]
+hashesdb scan -d|--database DATABASE_PATH 	-t|--targets TARGETS_PARAMETERS
+											-c|--calculate HASH_FUNCTIONS
+											[-dw|--download DOWNLOAD_PATH]
+											[-r|--recursive]
+											[-j|--jobs N]
 
 	Calculates the hash values of the targets and inserts them in the database
 
-hashesdb search database_path [--hash HASH_VALUES]
-							  [-name|--filename FILENAMES]
-							  [-o|--output OUTPUT_PARAMETER]
-
-	Searches the database for files using one or more criteria.
-
-hashesdb sql database_path sql_query_string [-o|--output OUTPUT_PARAMETER]
-	Executes SQL query
-
-hashesdb dbinfo database_path
-	Prints information regarding the specified database.
-
-hashesdb stats database_path
-	Prints statistics regarding the specified database.
-
-hashesdb hash-functions database_path
-	Prints the hash functions available in the specified database.
-
-hashesdb hash-is-available hash_function_name database_path
-	Checks if a hash function is available in a specified database
-
-hashesdb search-duplicates database_path [-f|--file FILE_PATH_PARAM]
-	Searches for files with the same content as the given file
-
-hashesdb compare fuzzy_hash_function [-t|--targets TARGETS_PARAMETERS]
-									 [[-a|--all]|[-c|--comparsion-targets DIRECTORIES]]
-									 [-r|--recursive]
-									 [-d|--download DOWNLOAD_PATH]
-									 [-l|--limit THRESHOLD_VALUE]
-									 [-o|--output OUTPUT_PARAMETER]
-
-	Similarity comparsion.
-
-hashesdb swh ....
-	##TODO###
-
-		
-Commands inside the program's interactive dialog
---------------------------------------------------
-	help
-		This command will print all the availiable commands.
-
-	version:
-		This command will print the software's version (e.g. hashesdb 1.0.2).
-		
-	about:
-		This command will print basic information about the tool.
-
-	exit:
-		This command will terminate the program.
-
-	threads max_threads:
-		This command sets an upperbound regarding the threads the programm can use.
-
-	create database_path [--overwrite]:
-		This command will create a new database at a specified path.
-
-	use database_path:
-		This command will specify the database in which the user will work with.
-		The input will be a (relative or absolute) path to the .db file.
-		If the database does not exist, a new one will be created.
-
-	unuse:
-		This command will allow the user to stop using the database he is currently using.
-
-	status:
-		This command will print the database that is currently used.
-	
-	save:
-		This command will commit the last changes to the database.
-
-	rollback:
-		This command rolls back any changes to the database since the last call to "save".
-
-	clear:
-		This command will clear a database by deleting its content.		
-
-	dbinfo:
-		This command will print information about the used database.
-
-	stats:
-		Prints statistics about the used database.
-
-	schema
-		This command prints the database schema.
-
-	import import_file_path import_database_path [--overwrite]
-	Imports from a file to a database
-
-	export export_database_path export_file_path [--overwrite]
-	Exports from a database to a file
-		
-	scan [-t|--targets TARGETS_PARAMETERS] [-c|--calculate HASH_FUNCTIONS] [-d|--download DOWNLOAD_PATH] [-r|--recursive] [-j|--jobs N]
-	Calculates the hash values of the targets and inserts them in the database
-
-	search [--hash HASH_VALUES] [-name|--filename FILENAMES] [-o|--output OUTPUT_PARAMETER]
-	Searches the database for files using one or more criteria.
-
-	sql sql_query_string [-o|--output OUTPUT_PARAMETER]
-	Executes SQL query
-
-	hash_functions [--details]:
-		This command will print the available hash algorithms.
-		-details flag will print the whole hash_functions table
-
-	hash_is_available hash_function_name:
-		This command will return True if a hash function is available or False otherwise.
-
-	search-duplicates [-f|--file FILE_PATH_PARAM]
-	Searches for files with the same content as the given file
-
-	compare fuzzy_hash_function [-t|--targets TARGETS_PARAMETERS]
-								[[-a|--all]|[-c|--comparsion-targets DIRECTORIES]]
-								[-r|--recursive]
-								[-d|--download DOWNLOAD_PATH]
-								[-l|--limit THRESHOLD_VALUE]
+hashesdb search database_path 	 -d|--database DATABASE_PATH 
+								[--hash HASH_VALUES]
+								[--filename FILENAMES]
 								[-o|--output OUTPUT_PARAMETER]
 
+	Searches the database for files using one or more criteria.
+
+hashesdb sql 	 -d|--database DATABASE_PATH 
+				 -q|--query SQL_QUERY_STRING 
+				[-o|--output OUTPUT_PARAMETER]
+	Executes SQL query
+
+hashesdb dbinfo -d|--database DATABASE_PATH
+	Prints information regarding the specified database.
+
+hashesdb stats -d|--database DATABASE_PATH
+	Prints statistics regarding the specified database.
+
+hashesdb hash-functions -d|--database DATABASE_PATH
+	Prints the hash functions available in the specified database.
+
+hashesdb hash-is-available -d|--database DATABASE_PATH
+							-func|--hash_function_name HASH_FUNCTION NAME 
+	
+	Checks if a hash function is available in a specified database
+
+hashesdb search-duplicates -d|--database DATABASE_PATH
+						  [-f|--file FILE_PATH_PARAM]
+	Searches for files with the same content as the given file
+
+hashesdb compare 	 -d|--database DATABASE_PATH
+				     -fuzzy FUZZY_HASH_FUNCTION_NAME
+				    [-t|--targets TARGETS_PARAMETERS]
+					[[-a|--all]|[-c|--comparsion-targets DIRECTORIES]]
+					[-r|--recursive]
+					[-d|--download DOWNLOAD_PATH]
+					[-l|--limit THRESHOLD_VALUE]
+					[-o|--output OUTPUT_PARAMETER]
+
 	Similarity comparsion.
-
-
-	??
-	swh
-	??

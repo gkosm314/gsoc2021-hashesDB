@@ -1,0 +1,29 @@
+Change all docstrings to follow numpydoc standard: https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard 
+For parser: - https://docs.python.org/3/library/argparse.html + https://realpython.com/command-line-interfaces-python-argparse/
+
+Add \n's to use-unuse-Db.__init__-display_unused_warning-save-rollback
+
+search duplicates for directories?
+search HASH OR FILENAME?
+SQL SELECT only?
+abbreviations?
+importing from TXT is important?
+output_path_parameter = sys.stdout ???
+think if you want the db to be created if it does not exist for subcommands (sql etc) too
+
+https://www.kite.com/python/docs/sqlalchemy.orm.Session.is_modified
+https://docs.sqlalchemy.org/en/14/orm/session_api.html#sqlalchemy.orm.ORMExecuteState
+
+[] Parser
+[] REPL
+[] Import
+[] Export
+[] Scan
+[] Search
+[] SQL Query
+...
+...
+...
+[] UNIT TESTING
+
+verbose/quiet
