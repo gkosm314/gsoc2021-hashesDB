@@ -229,7 +229,8 @@ class ReplParser(ParserTemplate):
 		if database_to_use_parameter == None:
 			self.app = App()
 		else:
-			self.app = App(database_to_use_parameter)
+			self.app = App()
+			self.app.use(database_to_use_parameter)
 
 		##REPL-only subcommands
 		#exit subcommand parser
