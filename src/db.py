@@ -165,6 +165,68 @@ class Db:
 			print(f"Last scan #id: {dbinfo_result.db_last_scan_id}")
 			print("")
 
+	def sql_query(self, sql_query_string_parameter, output_path_parameter = sys.stdout, autocommit_flag = False):
+		"""
+		Description
+		-----------
+		
+		
+		Parameters
+		-----------
+		sql_query_string_parameter: string, optional
+			This is a SQL query encapsulated inside double quotes (For example: "SELECT...").
+			The double quotes are included in the string.		
+
+		output_path_parameter: string
+			Default: sys.stdout
+			This is a path to a file, where the output will be printed/saved.
+			Supported file formats: TXT,CSV, JSON, YAML, XML
+
+		autocommit_parameter: boolean, optional
+			Default: False
+			In case this flag is set to True, the changes will be commited to the before the function ends.
+			The main intention of this flag is to make sure the changes made by 'DELETE' SQL queries are saved when the sql subcommand is executed from the terminal.
+
+			IMPORTANT NOTE: this flag is supposed to be set to True only when this method is called in order to execute a standalone command.
+			If you set this parameter ro True when you execute a sql command from the REPL, it is possible that changes made before the execution
+			of the SQL query will be commited too.			
+		"""
+
+		#This flag is True if the SQL query is a 'SELECT' query and False if it is a 'DELETE' query
+		select_query_flag = True
+
+		#Check that the string is actually a SQL query using sqlparse library
+		statements = sqlparse.parse(sql_query_string_parameter)
+		for statement in statements:
+			if statement.get_type() != "SELECT":
+				if statement.get_type() != "DELETE":
+					#Neither SELECT nor DELETE, so print an error message
+					print("Error: the sql command only accepts SELECT and DELETE statements")
+					return False
+				else:
+					#Not 'SELECT' but 'DELETE', so set flag to false
+					select_query_flag = False
+
+		#Convert the string to a SQLAlchemyORM TextClause in order to execute it
+		sql_text = text(sql_query_string_parameter)   
+
+		#Documentation of session.execute(): https://docs.sqlalchemy.org/en/14/orm/session_api.html#sqlalchemy.orm.Session.execute
+		try:
+			#Try to execute the given query
+			sql_results = self.db_session.execute(sql_text)
+		except Exception as e:
+			#If the query can;t be executed, cancel the execution and print an error message
+			self.db_session.rollback()
+			print("Error: an error occurred while executing the SQL query. In more detail:")
+			print(e)
+		else:
+			#If the executed query is a 'SELECT' query print the results, otherwise it is a 'DELETE' query and you should check if you should commit the changes.
+			if select_query_flag:
+				output(sql_results, output_path_parameter)
+			elif autocommit_flag:
+				self.db_session.commit()
+
+
 	def hash_functions(self, details_flag = False):
 		"""
 		Description
@@ -324,13 +386,29 @@ class NoDb:
 
 		self.display_unused_warning()
 
-def hash_is_available(self, hash_function_parameter):
+	def sql_query(self, sql_query_string_parameter, output_path_parameter = sys.stdout):
 		"""
 		Description
 		-----------
 		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
 
-		self.display_unused_warning()		
+		self.display_unused_warning()
+
+	def hash_functions(self, details_flag):
+		"""
+		Description
+		-----------
+		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+		self.display_unused_warning()
+
+	def hash_is_available(self, hash_function_parameter):
+			"""
+			Description
+			-----------
+			This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+			self.display_unused_warning()		
 
 def database_is_used(database_object):
 	"""
