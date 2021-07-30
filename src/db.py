@@ -170,7 +170,11 @@ class Db:
 		"""
 		Description
 		-----------
-		
+		Checks if the folder in which we want to export the data already exists.
+		If the folder exists and the overwrite flag is set to True, the folder is recursively deleted.
+		After that, the folder is created. We obtain a list with the names of the database's tables.
+		We execute a SELECT statement for each table and we obtain all of each records.
+		We then export them inside the newly created folder.
 
 		Paramaters
 		-----------
@@ -231,8 +235,21 @@ class Db:
 			#Write and execute the SELECT query
 			select_query_string = f"SELECT * FROM {table_name}"
 			select_query = text(select_query_string)
-			table_data = self.db_session.execute(select_query)
 
+			try:
+				table_data = self.db_session.execute(select_query)
+			except Exception as e:
+				self.db_session.rollback()
+				print("Error: an error occurred while exporting a table. In more detail:")	
+				print(e)
+				try:
+					rmtree(folder_abs_path)
+				except Exception as e:
+					print(f"Error: Could not remove {folder_abs_path}. In more detail:")
+					print(e)
+					return False
+				return False
+			
 			table_filename = table_name + '.' + export_file_format_param #Name of the new file is the name of the table + the extension
 			table_file_path = join(folder_abs_path, table_filename) #Path of the new file
 
@@ -248,6 +265,7 @@ class Db:
 					return False
 
 		return True
+
 
 	def hash_functions(self, details_flag = False):
 		"""
