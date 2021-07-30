@@ -2,6 +2,7 @@ from create import is_hashesdb_database, is_valid_db_path, create as create_crea
 from os.path import abspath,isfile
 from os import getcwd
 from sys import exit as sys_exit
+import sys
 from db import Db,NoDb,database_is_used
 
 class App:
@@ -71,7 +72,8 @@ class App:
 		-----------
 		Exits violently with sys.exit(), without saving anything."""
 
-		print("Exiting (no changes will be saved)...")
+		print("Exiting...")
+		del self.used_database
 		sys_exit()
 
 	def threads(self,max_threads_number_parameter):
@@ -269,15 +271,15 @@ class App:
 		
 		self.used_database.rollback()
 
-	def clear(self):
+	def reset(self):
 		"""
 		Description
 		-----------
-		Implementetion of the 'clear' command.
+		Implementetion of the 'reset' command.
 		If a database is used then it asks for permission to drop all its data. Otherwise it prints a warning message.
 		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object."""
 		
-		self.used_database.clear()
+		self.used_database.reset()
 
 	def dbinfo(self):
 		"""
