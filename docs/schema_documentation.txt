@@ -12,7 +12,7 @@ DB_INFORMATION
 
 	db_version
 		Type: Integer
-		Description: The version of this hashesdb database. Each time we make a changes, this number increases.
+		Description: The version of this hashesdb database. Each time we make a change to the schema, this number increases.
 
 	db_date_modified
 		Type: DateTime
