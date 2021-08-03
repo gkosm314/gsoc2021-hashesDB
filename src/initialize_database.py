@@ -25,9 +25,27 @@ def initialize_db(engine, database_path_parameter):
 	Session = sessionmaker(bind = engine)
 	session = Session()
 
-	initialize_db_information(session, database_path_parameter)
-	initialize_scan_code(session)
-	initialize_hash_function(session)
+	initialize_db_from_session(session, database_path_parameter)
+
+def initialize_db_from_session(session_param, database_path_parameter):
+	"""
+	Description
+	-----------
+	Initializes an empty hashesDB database.
+	After execution, the DB_INFORMATION, SCAN_CODE and HASH_FUNCTION tables will be initialized
+
+	Parameters
+	-----------
+
+	session_param - SQLAlchemy session object
+
+	database_path_parameter: string
+			A path(relative or absolute) that specifies where the new database will be located. This has to be a path to a .db file.
+			This parameter is only used to extract the name of the database, which is always the same as the name of the .db file."""
+
+	initialize_db_information(session_param, database_path_parameter)
+	initialize_scan_code(session_param)
+	initialize_hash_function(session_param)
 
 def initialize_db_information(session, database_path_parameter):
 	"""
@@ -66,7 +84,8 @@ def initialize_scan_code(session):
 	#More scan_return_codes will be added after the scan command is implemented
 	session.add_all([
 		ScanCode(scan_return_code = 0, scan_return_code_description = 'Successful scan'),
-		ScanCode(scan_return_code = 1, scan_return_code_description = 'Failed scan')]
+		ScanCode(scan_return_code = 1, scan_return_code_description = 'Failed scan'),
+		ScanCode(scan_return_code = 2, scan_return_code_description = 'Currently Scanning')]
 		)
 	session.commit()
 
@@ -110,11 +129,17 @@ def initialize_hash_function(session):
 		#Produce a row for this hash
 		session.add(HashFunction(hash_function_name = hash_name, hash_function_fuzzy_flag = False, hash_function_size = hash_size[hash_name]))
 
+	### XXHASHES HASHES ###
+	session.add(HashFunction(hash_function_name = 'xxh3_64', hash_function_fuzzy_flag = False, hash_function_size = hash_size['xxh3_64']))
+	session.add(HashFunction(hash_function_name = 'xxh3_128', hash_function_fuzzy_flag = False, hash_function_size = hash_size['xxh3_128']))
 
 	### FUZZY HASHES ###
-
-	#Create and add a row for ssdeep fuzzy function with NULL size, since ssdeep does not have a fixed size.
+	#Create and add a row for fuzzy functions with NULL size, since ssdeep and tlsh do not have a fixed size.
 	session.add(HashFunction(hash_function_name = 'ssdeep', hash_function_fuzzy_flag = True, hash_function_size = None))
+	session.add(HashFunction(hash_function_name = 'tlsh', hash_function_fuzzy_flag = True, hash_function_size = None))
+
+	### SWHID ###
+	session.add(HashFunction(hash_function_name = 'swhid', hash_function_fuzzy_flag = False, hash_function_size = None))
 
 	#Initialize HASH_FUNCTION table by commiting the added hashes
 	session.commit()
