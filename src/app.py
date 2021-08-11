@@ -323,6 +323,16 @@ class App:
 
 		self.used_database.dbinfo()
 
+	def stats(self):
+		"""
+		Description
+		-----------
+		Implementetion of the 'stats' command.
+		If a database is used then it prints information about this database. Otherwise it prints a warning message.
+		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object."""
+
+		self.used_database.stats()	
+
 	def scan(self, scan_targets_parameter, hash_functions_parameter, download_location_parameter = None, jobs_parameter = 1, autocommit_parameter = False, recursion_flag_parameter = True):
 		"""
 		Description
