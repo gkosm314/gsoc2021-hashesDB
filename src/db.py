@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine, inspect, text
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, load_only
+from datetime import datetime
 from prettytable import PrettyTable
 from os import mkdir
 from os.path import abspath, isdir, join, split
@@ -8,7 +9,8 @@ import sys
 import sqlparse
 from initialize_database import initialize_db_from_session
 from table_classes import *
-#from scan import scanner
+from scan import scanner
+from socket import gethostname
 from shutil import rmtree
 from output import output
 
@@ -51,10 +53,11 @@ class Db:
 			self.insp = inspect(engine)
 			self.db_session = Session()
 			self.db_session.begin()
+			self.available_functions = {i[0] for i in self.db_session.query(HashFunction.hash_function_name).all()} #available hash functions 
 		except Exception as e:
 			raise e
 		else:
-			print(f"Database currently used: {self.get_database_path()}\n")
+			print(f"Database currently used: {self.get_database_path()}")
 
 	def __del__(self):
 		"""
@@ -67,6 +70,7 @@ class Db:
 		Raises an exception if we fail to close a session."""
 
 		try:
+			self.db_session.rollback()
 			self.db_session.close()
 		except Exception as e:
 			raise Exception("Error: a problem occured while trying to disconnect from the database.")
@@ -164,6 +168,88 @@ class Db:
 			print(f"Last scan #id: {dbinfo_result.db_last_scan_id}")
 			print("")
 
+	def scan(self, scan_targets_parameter, hash_functions_parameter, download_location_parameter, autocommit_flag = False, recursion_flag_parameter = True):
+		"""
+		Description
+		-----------
+		Implementetion of the 'scan' command.
+		If a database is used then we scan the scan targets and updates the database. Otherwise it prints a warning message.
+
+		Parameters
+		-----------
+		scan_targets_parameter: a list of lists of scan targets(strings)
+			List 1: a list of local scan targets (files and directories)
+			List 2: a list of Github repos
+			List 3: a list of Gitlab project ids
+
+		hash_function_parameter: list of hash function names(strings)
+			hash function name: a name contained in the hash_function_name column of the HASH_FUNCTION table
+		
+		download_location_parameter: string
+			A path(relative or absolute) to the location in which the downloaded files will be saved.
+			The only files we download are remote scan targets(links to github/gitlab)
+
+		recursion_flag_parameter: boolean, optional
+			Default value: True
+			If this parameter is True, then we recursively scan the contents of all the directories.
+			Otherwise we do not scan the directories (we skip them).
+
+		autocommit_parameter: boolean, optional
+			Default: False
+			In case this flag is set to True, the changes will be commited to the before the function ends.
+			The main intention of this flag is to make sure the changes made by 'DELETE' SQL queries are saved when the sql subcommand is executed from the terminal.
+
+			IMPORTANT NOTE: this flag is supposed to be set to True only when this method is called in order to execute a standalone command.
+			If you set this parameter ro True when you execute a sql command from the REPL, it is possible that changes made before the execution
+			of the SQL query will be commited too.		
+		"""
+
+		#When there are no scan parameters, do not due anything
+		if not scan_targets_parameter:
+			print("You should specify some scan targets to be scanned. Enter scan --help to learn more about possible scan targets.")
+			return False
+		
+		valid_hash_functions_list = self.valid_hash_functions(hash_functions_parameter)
+		
+		#Retrive id of last scan from db_info
+		try:
+			db_info_row = self.db_session.query(DbInformation).one()
+			last_scan_id = db_info_row.db_last_scan_id
+		except Exception as e:
+			print("Error: a problem occured while trying to start scanning this database. In more detail:")
+			print(e)
+			return False
+		else:
+			#ID of new scan = ID of last scan + 1
+			new_scan_id = last_scan_id + 1
+
+		#Info that will be stored for the scan
+		new_scan_datetime = datetime.now()
+		new_scan_hostname = gethostname()
+		new_scan_code = 2 #Scan code for scans that are currently performed
+
+		#Try to add the scan to the SCAN table and perform the scan
+		try:
+			self.db_session.add(Scan(scan_id = new_scan_id,scan_hostname = new_scan_hostname, scan_date = new_scan_datetime, scan_return_code = new_scan_code))
+		except Exception as e:
+			print("Error: a problem occured while trying to start scanning this database. In more detail:")
+			print(e)
+			return False
+		else:
+			new_scan_result = scanner(self.db_session, scan_targets_parameter, valid_hash_functions_list, download_location_parameter, new_scan_id, recursion_flag_parameter)
+			
+			db_info_row.db_last_scan_id = new_scan_id
+			db_info_row.db_date_modified = datetime.now()
+			new_scan_row = self.db_session.query(Scan).get(new_scan_id)
+			new_scan_row.scan_return_code = new_scan_result
+			self.db_session.flush()
+
+		if autocommit_flag:
+			self.db_session.commit()
+			self.unsaved_changes_flag = False
+		else:
+			self.unsaved_changes_flag = True
+
 	def hash_functions(self, details_flag = False):
 		"""
 		Description
@@ -252,6 +338,40 @@ class Db:
 				print("\nYou can use the 'hashesdb hash-functions' command to find more information about all the available hash functions.\n")
 				return False		
 
+	def valid_hash_functions(self, hash_functions_parameter):
+		"""
+		Description
+		-----------
+		Removes duplicates from the list of hash functions that will be calculated for each file.
+		Removes SWHID since it will be calculated for every file.
+		Prints error message for hash functions that are not available.
+
+		Parameters
+		-----------
+		hash_function_parameter: string
+			The name of the hash function whose availability we want to check 
+		"""		
+		valid_func_list = []
+
+		if hash_functions_parameter:
+			for h in hash_functions_parameter:
+				if h == 'swhid':
+					#If the hash function is SWHID, do not add it in the list that will be returned
+					continue
+				elif h in self.available_functions:
+					#If the hash function is available, add its name in the list that will be returned
+					valid_func_list.append(h)
+				else:
+					#If the hash function is NOT available, print an error message
+					invalid_hash_msg = (f"Error: {h} is not an available hash function.\n"
+					"Use the 'hash-functions' command to learn more about the available hash functions "
+					"or the 'hash-is-available' command to investigate if a particular command is available.\n")
+					print(invalid_hash_msg)
+
+		#Remove duplicate hash function names
+		return list(set(valid_func_list))
+
+
 class NoDb:
 	"""NoDb object is a object that provides the same interface as the Db object. It is used when we do NOT use a database in our application."""
 
@@ -316,6 +436,14 @@ class NoDb:
 		self.display_unused_warning()
 
 	def dbinfo(self):
+		"""
+		Description
+		-----------
+		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+		self.display_unused_warning()
+
+	def scan(self, scan_targets_parameter, hash_functions_parameter, download_location_parameter, autocommit_flag = False):
 		"""
 		Description
 		-----------
