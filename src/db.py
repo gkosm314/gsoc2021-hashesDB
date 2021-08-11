@@ -9,10 +9,11 @@ import sys
 import sqlparse
 from initialize_database import initialize_db_from_session
 from table_classes import *
-from scan import scanner
+from scan import scanner, comparsion
 from socket import gethostname
 from shutil import rmtree
 from output import output
+from itertools import combinations
 
 Session = sessionmaker()
 
@@ -590,6 +591,79 @@ class Db:
 		#Remove duplicate hash function names
 		return list(set(valid_func_list))
 
+	def compare(self, fuzzy_func, ids_to_compare):
+		"""
+		Description
+		-----------
+		Checks that the hash function is available and is actually a fuzzy hash function
+		Checks that the given hash ids exist AND that the respective hash values were produced from the given hash function
+		Compares all the valid hash values pairwise and prints the results
+
+		Parameters
+		-----------
+		fuzzy_func: string
+			The name of the fuzzy hash function we will use for the comparsion
+
+		ids_to_compare - list of ints
+			List of ids of Hash records (primary keys of the HASH table) 
+		"""		
+
+		#Check that the hash function is available and is actually a fuzzy hash function
+		if not (fuzzy_func in self.available_functions):
+			#If the hash function is NOT available, print an error message
+			invalid_hash_msg = (f"Error: {fuzzy_func} is not an available hash function.\n"
+			"Use the 'hash-functions' command to learn more about the available hash functions "
+			"or the 'hash-is-available' command to investigate if a particular command is available.\n")
+			print(invalid_hash_msg)
+		else:
+			#If the hash function is NOT a fuzzy hash function, print an error message
+			try:
+				is_fuzzy_flag = self.db_session.query(HashFunction).get(fuzzy_func).hash_function_fuzzy_flag
+			except Exception as e:
+				print(f"Error: Something went wrong while trying to find '{fuzzy_func}' in the HASH_FUNCTION table. In more detail:")
+				print(e)
+				return False
+			else:
+				if not is_fuzzy_flag:
+					print(f"Error: '{fuzzy_func}' in not a fuzzy hash function. Use the 'hash-functions --details' command to find which fuzzy hash functions are available.")
+					return False
+
+		hashes_query = self.db_session.query(Hash)
+		hashes_for_comparsion = []
+
+		#For each hash id
+		for h_id in ids_to_compare:
+			h = hashes_query.get(h_id)
+
+			#Print error message if no Hash record with such id exist
+			if not h:
+				print(f"Error: no Hash record with id {h_id} was found. hashesdb will skip this id.")
+				continue
+
+			#Print error message if a hash produced from a different hash function is given
+			if h.hash_function_name != fuzzy_func:
+				print(f"Error: Hash record with id {h_id} was not produced from '{fuzzy_func}' hash function. hashesdb will skip this hash value.")
+				continue
+
+			#If the hash id is valid, add the hash to the hashes that will be compared
+			hashes_for_comparsion.append(h)
+
+		#Compare all the pairs
+		if len(hashes_for_comparsion) < 2:
+			print("No pair of hashes to compare")
+		else:
+			comparsion_results = []
+
+			#Compare all hashes pairwise and add the result to the comparsion_result list
+			for (a,b) in combinations(hashes_for_comparsion, 2):
+				print(f"[{fuzzy_func}] Comparing hash #{a.hash_id} with hash #{b.hash_id}...")
+				comparsion_results.append((a.hash_id,b.hash_id,comparsion(fuzzy_func,a.hash_value,b.hash_value)))
+
+			#Print all the comparsion results
+			for (first_hash_id, second_hash_id, comparesion_value) in comparsion_results:
+				print(f"[{fuzzy_func}] Comparsion between hash #{first_hash_id} and hash #{second_hash_id} = {comparesion_value}")
+
+
 class NoDb:
 	"""NoDb object is a object that provides the same interface as the Db object. It is used when we do NOT use a database in our application."""
 
@@ -669,7 +743,7 @@ class NoDb:
 
 		self.display_unused_warning()
 
-	def scan(self, scan_targets_parameter, hash_functions_parameter, download_location_parameter, autocommit_flag = False):
+	def scan(self, scan_targets_parameter, hash_functions_parameter, download_location_parameter, autocommit_flag = False, recursion_flag_parameter = True):
 		"""
 		Description
 		-----------
@@ -708,6 +782,14 @@ class NoDb:
 		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
 
 		self.display_unused_warning()
+
+	def compare(self, fuzzy_func, ids_to_compare):
+		"""
+		Description
+		-----------
+		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+		self.display_unused_warning()		
 
 def database_is_used(database_object):
 	"""
