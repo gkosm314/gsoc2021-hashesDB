@@ -382,7 +382,7 @@ class GithubScanner(RemoteScanner):
 		return branch_object.commit.sha
 
 	def get_directory_contents(self, repo_object, path, sha):
-		return repo_object.get_dir_contents(path, ref= sha)
+		return repo_object.get_contents(path, ref= sha)
 
 	def get_content_name(self, content_object):
 		return content_object.name
@@ -842,3 +842,29 @@ def resolve_swhid(swhid_hash):
 		return False
 	else:
 		return None
+
+def comparsion(fuzzy_func, h1, h2):
+	"""
+	Description
+	-----------
+	Compares two hash values using a comparsion method provided by the appropriate library that implements the given fuzzy hash function
+
+	Parameters
+	-----------
+	fuzzy_func: string
+		The name of the fuzzy hash function we will use for the comparsion
+
+	h1 - string
+		The first hash value that will be compared
+
+	h2 - string
+		The second hash value that will be compared		
+
+	Return
+	-----------
+	Returns the result of the fuzzy hashing comparsion
+	"""		
+	if fuzzy_func == 'tlsh':
+		return tlsh.diff(h1, h2)
+	elif fuzzy_func == 'ssdeep':
+		return ssdeep.compare(h1, h2)
