@@ -291,6 +291,58 @@ class App:
 
 		self.used_database.dbinfo()
 
+	def scan(self, scan_targets_parameter, hash_functions_parameter, download_location_parameter = None, jobs_parameter = 1, autocommit_parameter = False, recursion_flag_parameter = True):
+		"""
+		Description
+		-----------
+		Implementetion of the 'scan' command.
+		If a database is used then we scan the scan targets and updates the database. Otherwise it prints a warning message.
+
+		Parameters
+		-----------
+		scan_targets_parameter: a list of lists of scan targets(strings)
+			List 1: a list of local scan targets (files and directories)
+			List 2: a list of Github repos
+			List 3: a list of Gitlab project ids
+
+		hash_function_parameter: list of hash function names(strings)
+			hash function name: a name contained in the hash_function_name column of the HASH_FUNCTION table
+		
+		download_location_parameter: string, optional
+			Default value: None (which gets redirected to self.working_direcotry)
+			A path(relative or absolute) to the location in which the downloaded files will be saved.
+			The only files we download are remote scan targets(links to github/gitlab/bitbucket)
+
+		jobs_parameter: int, optional
+			Default value: 1
+			This parameters sets the maximum number of threads that can be used while performing this scan.
+
+		recursion_flag_parameter: boolean, optional
+			Default value: True
+			If this parameter is True, then we recursively scan the contents of all the directories.
+			Otherwise we do not scan the directories (we skip them).
+
+		autocommit_parameter: boolean, optional
+			Default: False
+			In case this flag is set to True, the changes will be commited to the before the function ends.
+			The main intention of this flag is to make sure the changes made by 'DELETE' SQL queries are saved when the sql subcommand is executed from the terminal.
+
+			IMPORTANT NOTE: this flag is supposed to be set to True only when this method is called in order to execute a standalone command.
+			If you set this parameter ro True when you execute a sql command from the REPL, it is possible that changes made before the execution
+			of the SQL query will be commited too.
+		"""
+
+		#If no directory is given for the remote files to be saved, then we set the working directory as the directory to be used as the download location for the remote files
+		if download_location_parameter is None:
+			download_location_parameter = self.working_directory
+		else:
+			abspath(download_location_parameter)
+
+		#If the jobs_parameter argument demands the current maximum number of threads allowed to changes, then we change the equivelant variable through  
+		if jobs_parameter != self.max_threads:
+			self.threads(jobs_parameter)
+
+		self.used_database.scan(scan_targets_parameter, hash_functions_parameter, download_location_parameter, autocommit_parameter, recursion_flag_parameter)
 
 	def hash_is_available(self, hash_function_parameter):
 		"""
