@@ -382,7 +382,7 @@ class GithubScanner(RemoteScanner):
 		return branch_object.commit.sha
 
 	def get_directory_contents(self, repo_object, path, sha):
-		return repo_object.get_dir_contents(path, ref= sha)
+		return repo_object.get_contents(path, ref= sha)
 
 	def get_content_name(self, content_object):
 		return content_object.name
