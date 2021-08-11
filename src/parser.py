@@ -101,8 +101,7 @@ class ParserTemplate:
 		compare_help_msg = "perform similarity comparsion with the use of fuzzy hashing"
 		self.parser_compare = self.subparsers.add_parser('compare', help= compare_help_msg, description = compare_help_msg)
 		self.parser_compare.add_argument('-fuzzy', metavar = 'FUZZY_HASH_FUNCTION_NAME', required = True, action = "store", help = "fuzzy hash function which will be used for the similarity comparsion")
-		self.parser_compare.add_argument('-ids', '--hash-ids', nargs='+', action = "store", metavar = "HASH_ID", required = True, help = "hash ids that will be compared with each other. must be products of the same fuzzy hash function")
-		self.parser_compare.add_argument('-o','--output', default="sys.stdout", action='store', metavar = "OUTPUT_PATH", help = "path to output file, default: stdout (Supported file formats: TXT, CSV, TSV, JSON, YAML, XML)")
+		self.parser_compare.add_argument('-ids', '--hash-ids', nargs='+', type = int, action = "store", metavar = "HASH_ID", required = True, help = "hash ids that will be compared with each other. must be products of the same fuzzy hash function")
 
 		#reset subcommand parser
 		reset_help_msg = "resets database by deleting all of its content"
@@ -216,7 +215,7 @@ class TerminalParser(ParserTemplate):
 		pass
 
 	def subcommand_compare(self,args):
-		pass
+		App(args.database).compare(args.fuzzy, args.hash_ids)
 
 	def subcommand_reset(self,args):
 		App(args.database).reset()
@@ -345,7 +344,7 @@ class ReplParser(ParserTemplate):
 		pass
 
 	def repl_compare(self,args):
-		pass
+		self.app.compare(args.fuzzy, args.hash_ids)
 
 
 	def repl_exit(self,args):
