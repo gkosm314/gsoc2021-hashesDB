@@ -84,7 +84,10 @@ def initialize_scan_code(session):
 	#More scan_return_codes will be added after the scan command is implemented
 	session.add_all([
 		ScanCode(scan_return_code = 0, scan_return_code_description = 'Successful scan'),
-		ScanCode(scan_return_code = 1, scan_return_code_description = 'Failed scan')]
+		ScanCode(scan_return_code = 1, scan_return_code_description = 'Failed scan'),
+		ScanCode(scan_return_code = 2, scan_return_code_description = 'Currently Scanning'),
+		ScanCode(scan_return_code = 3, scan_return_code_description = 'Failed scan: All file were scanned but some hashes were not calculated'),
+		ScanCode(scan_return_code = 4, scan_return_code_description = 'Failed scan: Some files were not scanned')]
 		)
 	session.commit()
 
@@ -98,7 +101,6 @@ def initialize_hash_function(session):
 
 	Parameters
 	-----------
-
 	session - SQLAlchemy session object"""
 
 	### PYTHON BUILT-IN HASHES + XXHASHES ###
@@ -119,8 +121,8 @@ def initialize_hash_function(session):
 				'sha512': 512, 
 				'shake_128': 128, 
 				'shake_256': 256,
-				'xxh3_64' : 64,
-    			'xxh3_128': 128
+				'xxh32' : 32,
+    			'xxh64': 64
 				}
 
 	#algorithms_guaranteed is imported from the built-in hashlib python module
@@ -128,11 +130,17 @@ def initialize_hash_function(session):
 		#Produce a row for this hash
 		session.add(HashFunction(hash_function_name = hash_name, hash_function_fuzzy_flag = False, hash_function_size = hash_size[hash_name]))
 
+	### XXHASHES HASHES ###
+	session.add(HashFunction(hash_function_name = 'xxh32', hash_function_fuzzy_flag = False, hash_function_size = hash_size['xxh32']))
+	session.add(HashFunction(hash_function_name = 'xxh64', hash_function_fuzzy_flag = False, hash_function_size = hash_size['xxh64']))
 
 	### FUZZY HASHES ###
-
-	#Create and add a row for ssdeep fuzzy function with NULL size, since ssdeep does not have a fixed size.
+	#Create and add a row for fuzzy functions with NULL size, since ssdeep and tlsh do not have a fixed size.
 	session.add(HashFunction(hash_function_name = 'ssdeep', hash_function_fuzzy_flag = True, hash_function_size = None))
+	session.add(HashFunction(hash_function_name = 'tlsh', hash_function_fuzzy_flag = True, hash_function_size = None))
+
+	### SWHID ###
+	session.add(HashFunction(hash_function_name = 'swhid', hash_function_fuzzy_flag = False, hash_function_size = None))
 
 	#Initialize HASH_FUNCTION table by commiting the added hashes
 	session.commit()
