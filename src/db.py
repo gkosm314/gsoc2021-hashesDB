@@ -443,7 +443,7 @@ class NoDb:
 
 		self.display_unused_warning()
 
-	def scan(self, scan_targets_parameter, hash_functions_parameter, download_location_parameter, autocommit_flag = False):
+	def scan(self, scan_targets_parameter, hash_functions_parameter, download_location_parameter, autocommit_flag = False, recursion_flag_parameter = True):
 		"""
 		Description
 		-----------
