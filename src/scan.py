@@ -910,14 +910,15 @@ def compute_hashes(file_path, hashes_to_compute):
 		try:
 			computed_hashes.append(hash_object.get_hash())
 		except Exception as e:
-			print("error msg 2") #TODO: fill this
+			print("Error: Calculation of {func} hash of {file_path} failed. This hash will be excluded from the search. In more detail:")
 			print(e)
 
 	#Compute SWHID
 	try:
 		swh_identifier = pid_of_file(file_path) #function imported from swh.model.cli
 	except Exception as e:
-		print("error msg 3") #TODO: fill this
+		print("Error: Calculation of SWHID hash of {file_path} failed. This hash will be excluded from the search. In more detail:")
+		print(e)
 	else:
 		computed_hashes.append(swh_identifier)
 

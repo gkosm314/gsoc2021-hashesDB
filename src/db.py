@@ -631,7 +631,7 @@ class Db:
 			try:
 				hashes_of_file = compute_hashes(absolute_file_path, self.available_functions)
 			except Exception as e:
-				print("error msg 1. In more detail:") #TODO: fill this
+				print("Opening file {absolute_file_path} failed. This file will be excluded from the search. In more detail:") #TODO: fill this
 				print(e)
 			else:
 				#Add the hash values you previously computed to the hashes we are going to search for
