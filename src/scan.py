@@ -58,6 +58,10 @@ class HashObject:
 			return self.obj.hexdigest()
 		elif self.hash_func == 'ssdeep':
 			return self.obj.digest(elimseq=False)
+		elif self.hash_func == 'shake_128':
+			return self.obj.hexdigest(128)
+		elif self.hash_func == 'shake_256':
+			return self.obj.hexdigest(256)
 		else:
 			return self.obj.hexdigest()
 		
@@ -752,6 +756,9 @@ def insert_hash(db_session_param, target_object_path, hash_func_name, file_id_pa
 	else:
 		for block in iter(lambda: f.read(chunk_size), b""):
 			hash_object.update(block)
+
+		#Close the file
+		f.close()
 
 	#Construct Hash object
 	h = Hash(hash_value = hash_object.get_hash(), hash_function_name = hash_func_name, file_id = file_id_parameter)
