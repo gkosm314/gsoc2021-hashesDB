@@ -339,6 +339,16 @@ class App:
 
 		self.used_database.dbinfo()
 
+	def stats(self):
+		"""
+		Description
+		-----------
+		Implementetion of the 'stats' command.
+		If a database is used then it prints information about this database. Otherwise it prints a warning message.
+		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object."""
+
+		self.used_database.stats()	
+
 	def scan(self, scan_targets_parameter, hash_functions_parameter, download_location_parameter = None, jobs_parameter = 1, autocommit_parameter = False, recursion_flag_parameter = True):
 		"""
 		Description
@@ -480,3 +490,21 @@ class App:
 		"""		
 
 		self.used_database.hash_is_available(hash_function_parameter)
+
+	def compare(self, fuzzy_func, ids_to_compare):
+		"""
+		Description
+		-----------
+		Implementetion of the 'scan' command.
+		If a database is used then we scan the scan targets and updates the database. Otherwise it prints a warning message.
+
+		Parameters
+		-----------
+		fuzzy_func: string
+			The name of the fuzzy hash function we will use for the comparsion
+
+		ids_to_compare - list of ints
+			List of ids of Hash records (primary keys of the HASH table) 
+		"""
+		
+		self.used_database.compare(fuzzy_func, ids_to_compare)

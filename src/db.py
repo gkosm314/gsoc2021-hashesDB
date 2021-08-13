@@ -3,17 +3,18 @@ from sqlalchemy.orm import sessionmaker, load_only
 from datetime import datetime
 from prettytable import PrettyTable
 from os import mkdir, listdir
-from os.path import abspath, isdir, join, split, exists
+from os.path import abspath, isdir, join, split, exists, getsize
 from difflib import SequenceMatcher
 import sys
 import sqlparse
 from initialize_database import initialize_db_from_session
 from table_classes import *
-from scan import scanner
+from scan import scanner, comparsion
 from socket import gethostname
 from shutil import rmtree
 from output import output
 from importing import populate_table
+from itertools import combinations
 
 Session = sessionmaker()
 
@@ -262,6 +263,58 @@ class Db:
 		print(f"Imported data from {import_file_path_param} to database {self.get_database_path()} successfully.")
 
 		self.db_session.commit()
+
+	def stats(self):
+		"""
+		Description
+		-----------
+		Prints statistics about this particular database.."""
+
+		print(f"Statistics of database {self.database_path}")
+
+		#Initialize PrettyTable that will display the statistics regarding the database
+		stats_table = PrettyTable()
+		stats_table.field_names = ["Statistic", "Result"]
+
+		#Get memory size of database
+		stats_table.add_row([f"Memory size", f"{getsize(self.database_path)} bytes"])
+
+		#Get total number of hashes
+		hashes_query = self.db_session.query(Hash)
+		hashes_count = hashes_query.count()
+		stats_table.add_row(["Total number of hashes", f"{hashes_count} hashes"])
+
+		#Get total number of files
+		files_query = self.db_session.query(File)
+		files_count = files_query.count()
+		stats_table.add_row(["Total number of files", f"{files_count} files"])
+
+		#Get percentage of SoftwareHeritage-known files
+		# (no of known files/no of total files)*100 -> round so only two decimals remain -> convert to str -> concat a % symbol
+		swh_known_percentage = str(round((files_query.filter(File.swh_known.is_(False)).count()/files_count)*100, 2)) + "%"
+		stats_table.add_row(["Percentage of SoftwareHeritage known files", swh_known_percentage])
+	
+		#Align PrettyTable that displays the statistics regarding the database and print it
+		stats_table.align["Statistic"] = "l"
+		stats_table.align["Result"] = "r"
+		print(stats_table)
+
+		#Initialize PrettyTable that will display the statistics regarding the use of hash functions
+		hash_table = PrettyTable()
+		hash_table.field_names = ["Hash Function", "Number of hashes", "Percentage of total hashes"]
+
+		#For each hash function, count the hashes that were produced from it and calculate the percentage of the total hashes
+		for func_name in self.available_functions:
+			func_count = hashes_query.filter(Hash.hash_function_name == func_name).count()
+			func_percent = str(round((func_count/hashes_count)*100, 2)) + "%"
+			hash_table.add_row([func_name, func_count, func_percent])
+
+		#Align PrettyTable that displays the statistics regarding the use of hash functions and print it
+		hash_table.align["Hash Function"] = "l"
+		hash_table.align["Number of hashes"] = "c"
+		hash_table.align["Percentage of total hashes"] = "r"
+		hash_table.sortby = "Hash Function"
+		print(hash_table)
 
 	def export(self, export_folder_path_param, export_file_format_param, overwrite_flag = False):
 		"""
@@ -680,6 +733,79 @@ class Db:
 		#Remove duplicate hash function names
 		return list(set(valid_func_list))
 
+	def compare(self, fuzzy_func, ids_to_compare):
+		"""
+		Description
+		-----------
+		Checks that the hash function is available and is actually a fuzzy hash function
+		Checks that the given hash ids exist AND that the respective hash values were produced from the given hash function
+		Compares all the valid hash values pairwise and prints the results
+
+		Parameters
+		-----------
+		fuzzy_func: string
+			The name of the fuzzy hash function we will use for the comparsion
+
+		ids_to_compare - list of ints
+			List of ids of Hash records (primary keys of the HASH table) 
+		"""		
+
+		#Check that the hash function is available and is actually a fuzzy hash function
+		if not (fuzzy_func in self.available_functions):
+			#If the hash function is NOT available, print an error message
+			invalid_hash_msg = (f"Error: {fuzzy_func} is not an available hash function.\n"
+			"Use the 'hash-functions' command to learn more about the available hash functions "
+			"or the 'hash-is-available' command to investigate if a particular command is available.\n")
+			print(invalid_hash_msg)
+		else:
+			#If the hash function is NOT a fuzzy hash function, print an error message
+			try:
+				is_fuzzy_flag = self.db_session.query(HashFunction).get(fuzzy_func).hash_function_fuzzy_flag
+			except Exception as e:
+				print(f"Error: Something went wrong while trying to find '{fuzzy_func}' in the HASH_FUNCTION table. In more detail:")
+				print(e)
+				return False
+			else:
+				if not is_fuzzy_flag:
+					print(f"Error: '{fuzzy_func}' in not a fuzzy hash function. Use the 'hash-functions --details' command to find which fuzzy hash functions are available.")
+					return False
+
+		hashes_query = self.db_session.query(Hash)
+		hashes_for_comparsion = []
+
+		#For each hash id
+		for h_id in ids_to_compare:
+			h = hashes_query.get(h_id)
+
+			#Print error message if no Hash record with such id exist
+			if not h:
+				print(f"Error: no Hash record with id {h_id} was found. hashesdb will skip this id.")
+				continue
+
+			#Print error message if a hash produced from a different hash function is given
+			if h.hash_function_name != fuzzy_func:
+				print(f"Error: Hash record with id {h_id} was not produced from '{fuzzy_func}' hash function. hashesdb will skip this hash value.")
+				continue
+
+			#If the hash id is valid, add the hash to the hashes that will be compared
+			hashes_for_comparsion.append(h)
+
+		#Compare all the pairs
+		if len(hashes_for_comparsion) < 2:
+			print("No pair of hashes to compare")
+		else:
+			comparsion_results = []
+
+			#Compare all hashes pairwise and add the result to the comparsion_result list
+			for (a,b) in combinations(hashes_for_comparsion, 2):
+				print(f"[{fuzzy_func}] Comparing hash #{a.hash_id} with hash #{b.hash_id}...")
+				comparsion_results.append((a.hash_id,b.hash_id,comparsion(fuzzy_func,a.hash_value,b.hash_value)))
+
+			#Print all the comparsion results
+			for (first_hash_id, second_hash_id, comparesion_value) in comparsion_results:
+				print(f"[{fuzzy_func}] Comparsion between hash #{first_hash_id} and hash #{second_hash_id} = {comparesion_value}")
+
+
 class NoDb:
 	"""NoDb object is a object that provides the same interface as the Db object. It is used when we do NOT use a database in our application."""
 
@@ -758,6 +884,14 @@ class NoDb:
 		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
 
 		self.display_unused_warning()
+    
+	def stats(self):
+		"""
+		Description
+		-----------
+		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+		self.display_unused_warning()
 
 	def export(self, export_file_path_param, export_file_format_param, overwrite_flag = False):
 		"""
@@ -806,6 +940,14 @@ class NoDb:
 		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
 
 		self.display_unused_warning()
+
+	def compare(self, fuzzy_func, ids_to_compare):
+		"""
+		Description
+		-----------
+		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+		self.display_unused_warning()		
 
 def database_is_used(database_object):
 	"""

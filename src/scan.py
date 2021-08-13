@@ -58,6 +58,10 @@ class HashObject:
 			return self.obj.hexdigest()
 		elif self.hash_func == 'ssdeep':
 			return self.obj.digest(elimseq=False)
+		elif self.hash_func == 'shake_128':
+			return self.obj.hexdigest(128)
+		elif self.hash_func == 'shake_256':
+			return self.obj.hexdigest(256)
 		else:
 			return self.obj.hexdigest()
 		
@@ -753,6 +757,9 @@ def insert_hash(db_session_param, target_object_path, hash_func_name, file_id_pa
 		for block in iter(lambda: f.read(chunk_size), b""):
 			hash_object.update(block)
 
+		#Close the file
+		f.close()
+
 	#Construct Hash object
 	h = Hash(hash_value = hash_object.get_hash(), hash_function_name = hash_func_name, file_id = file_id_parameter)
 
@@ -842,3 +849,29 @@ def resolve_swhid(swhid_hash):
 		return False
 	else:
 		return None
+
+def comparsion(fuzzy_func, h1, h2):
+	"""
+	Description
+	-----------
+	Compares two hash values using a comparsion method provided by the appropriate library that implements the given fuzzy hash function
+
+	Parameters
+	-----------
+	fuzzy_func: string
+		The name of the fuzzy hash function we will use for the comparsion
+
+	h1 - string
+		The first hash value that will be compared
+
+	h2 - string
+		The second hash value that will be compared		
+
+	Return
+	-----------
+	Returns the result of the fuzzy hashing comparsion
+	"""		
+	if fuzzy_func == 'tlsh':
+		return tlsh.diff(h1, h2)
+	elif fuzzy_func == 'ssdeep':
+		return ssdeep.compare(h1, h2)
