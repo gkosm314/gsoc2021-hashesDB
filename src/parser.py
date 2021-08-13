@@ -33,8 +33,7 @@ class ParserTemplate:
 		self.parser_import = self.subparsers.add_parser('import', help= import_help_msg, description = import_help_msg)
 		self.parser_import.add_argument('-f', '--folder', metavar = 'IMPORT_FOLDER_PATH', action = "store", help = "path to the folder that will be imported")
 		self.parser_import.add_argument('-d', '--database', '--db', required = True, metavar = 'IMPORT_DATABASE_PATH', action = "store", help = "path to the new hashesdb database (.db file)")
-		self.parser_import.add_argument('-e','--extension', metavar = 'IMPORT_FILE_FORMAT', action = "store", choices=['txt','csv','tsv','json','yaml','xml'], help = "Supported file formats: TXT, CSV, TSV, JSON, YAML, XML")
-		self.parser_import.add_argument('--overwrite', action='store_true', help = "flag: allows the tool to overwrite other databases when it creates a new hashesdb database")
+		self.parser_import.add_argument('-e','--extension', metavar = 'IMPORT_FILE_FORMAT', action = "store", choices=['csv','tsv','json','yaml','xml'], help = "Supported file formats: TXT, CSV, TSV, JSON, YAML, XML")
 
 		#export subcommand parser
 		export_help_msg = "create a new file which contains data saved in a hashesdb database"
@@ -102,8 +101,7 @@ class ParserTemplate:
 		compare_help_msg = "perform similarity comparsion with the use of fuzzy hashing"
 		self.parser_compare = self.subparsers.add_parser('compare', help= compare_help_msg, description = compare_help_msg)
 		self.parser_compare.add_argument('-fuzzy', metavar = 'FUZZY_HASH_FUNCTION_NAME', required = True, action = "store", help = "fuzzy hash function which will be used for the similarity comparsion")
-		self.parser_compare.add_argument('-ids', '--hash-ids', nargs='+', action = "store", metavar = "HASH_ID", required = True, help = "hash ids that will be compared with each other. must be products of the same fuzzy hash function")
-		self.parser_compare.add_argument('-o','--output', default="sys.stdout", action='store', metavar = "OUTPUT_PATH", help = "path to output file, default: stdout (Supported file formats: TXT, CSV, TSV, JSON, YAML, XML)")
+		self.parser_compare.add_argument('-ids', '--hash-ids', nargs='+', type = int, action = "store", metavar = "HASH_ID", required = True, help = "hash ids that will be compared with each other. must be products of the same fuzzy hash function")
 
 		#reset subcommand parser
 		reset_help_msg = "resets database by deleting all of its content"
@@ -181,7 +179,7 @@ class TerminalParser(ParserTemplate):
 		App().create(args.database, args.overwrite)
 
 	def subcommand_import(self,args):
-		pass
+		App(args.database).import_db(args.folder, args.extension)
 
 	def subcommand_export(self,args):
 		App(args.database).export_db(args.folder, args.extension, args.overwrite)
@@ -205,7 +203,7 @@ class TerminalParser(ParserTemplate):
 		App(args.database).dbinfo()
 
 	def subcommand_stats(self,args):
-		pass
+		App(args.database).stats()
 
 	def subcommand_hash_functions(self,args):
 		App(args.database).hash_functions(args.details)
@@ -217,7 +215,7 @@ class TerminalParser(ParserTemplate):
 		App(args.database).search_duplicates(args.files, args.output)
 
 	def subcommand_compare(self,args):
-		pass
+		App(args.database).compare(args.fuzzy, args.hash_ids)
 
 	def subcommand_reset(self,args):
 		App(args.database).reset()
@@ -312,7 +310,7 @@ class ReplParser(ParserTemplate):
 		self.app.create(args.database, args.overwrite)
 
 	def repl_import(self,args):
-		pass
+		self.app.import_db(args.folder, args.extension)
 
 	def repl_export(self,args):
 		self.app.export_db(args.folder, args.extension, args.overwrite)
@@ -334,7 +332,7 @@ class ReplParser(ParserTemplate):
 		self.app.dbinfo()
 
 	def repl_stats(self,args):
-		pass
+		self.app.stats()
 
 	def repl_hash_functions(self,args):
 		self.app.hash_functions(args.details)
@@ -346,7 +344,7 @@ class ReplParser(ParserTemplate):
 		self.app.search_duplicates(args.files, args.output)
 
 	def repl_compare(self,args):
-		pass
+		self.app.compare(args.fuzzy, args.hash_ids)
 
 
 	def repl_exit(self,args):

@@ -10,13 +10,13 @@ DB_INFORMATION
 		Type: DateTime
 		Description: The date and time this hashesdb database was created.
 
-	db_version
-		Type: Integer
-		Description: The version of this hashesdb database. Each time we make a changes, this number increases.
-
 	db_date_modified
 		Type: DateTime
 		Description: The last date and time this hashesdb database was modified.
+
+	db_version
+		Type: Integer
+		Description: The version of this hashesdb database. Each time we make a change to the schema, this number increases.
 
 	db_last_scan_id
 		Type: Integer
@@ -59,28 +59,11 @@ SCAN
 					 Refers to the SCAN_CODE table.
 
 
-ORIGIN
--------------
-	Primary key = origin_id
-
-	origin_id
-		Type: Integer
-		Description: A unique id used to identify this particular origin.
-
-	origin_is_local_flag
-		Type: Boolean
-		Description: A flag that is TRUE if the origin was 
-
-	origin_url_or_hostname:
-		Type: String
-		Description: If the origin is a local machine, then we store here the its hostname. Otherwise, store here the remote URL that leads to the remote origin.
-
-
 FILE
 -------------
-	Primary key = file_id
+	Primary key = id
 
-	file_id
+	id
 		Type: Integer
 		Description: A unique id used to identify this particular file.
 
@@ -104,22 +87,34 @@ FILE
 		Type: BigInteger
 		Description: The size of the file (in bytes).
 
-	file_date_created
+	date_created
 		Type: DateTime
 		Description: The date and time this particular file was created.
 
-	file_date_modified
+	date_modified
+		Type: DateTime
+		Description: The date and time this particular file was modified.
+
+	date_retrieved
 		Type: DateTime
 		Description: The date and time this particular file was modified.
 
 	swh_known
 		Type: Boolean
-		Description: If this is TRUE, then this file is included the Software Heritage archive. Otherwise it is not.
+		Description: 
+			-If this is TRUE, then this file was included in the Software Heritage archive when its scan was perfomed.
+			-If this is FALSE, then this file was not included in the Software Heritage archive when its scan was perfomed.
+			-If this is None, then we could not figure out if this file was included in the Software Heritage archive when its scan was perfomed.
 
-	origin_id
-		Type: Integer
-		Description: The id of the origin from which this file was retrieved.
-					 Refers to the ORIGIN table
+	updated
+		Type: Boolean
+		Description: If the file is the last file we scanned which is saved at a specific path and comes from a specific origin, then we consider it updated.
+		This means that all the other File records that refer to a file with the same 
+
+	origin
+		Type: String
+		Description: If the origin is a local machine, then we store here the its hostname. Otherwise, we store a URL from which the raw file can be retrived.
+
 
 HASH
 -------------
@@ -157,10 +152,3 @@ HASH_FUNCTION
 	hash_function_size
 		Type: Integer
 		Description: The size of the output of the hash function. If the has function does not have a fixed-size output, then this is set to NULL.
-
-
-HASH_TO_FILE
--------------
-	Primary key = hash_id + file_id
-
-	This table has two attirbutes that refer to the primary key of the HASH table and to the primary key of the FILE table. This table is used to represent the many-to-many relationship between hash values and files.

@@ -255,9 +255,25 @@ class App:
 		except OSError:
 			print("Error: Could not open docs/schema_documentation.txt")
 
-	def import_db(self, import_database_path_param, import_file_path_param, import_file_format_param, overwrite_flag = False):
-		#import command implementation here...
-		pass
+	def import_db(self, import_file_path_param, import_file_format_param):
+		"""
+		Description
+		-----------
+		Implementetion of the 'import' command.
+		If a database is used and it has unsaved changes then it saves them. Otherwise it prints a warning message.
+		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object.
+
+		Paramaters
+		-----------
+		import_file_path_param - string
+			Path to the folder from which the tables will be populated
+
+		import_file_format_param - string
+			File format from which the tables will be populated
+			Supported file formats: CSV, TSV, JSON, YAML, XML
+		"""
+
+		self.used_database.import_db(import_file_path_param, import_file_format_param)
 
 	def export_db(self, export_file_path_param, export_file_format_param, overwrite_flag = False):
 		"""
@@ -322,6 +338,16 @@ class App:
 		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object."""
 
 		self.used_database.dbinfo()
+
+	def stats(self):
+		"""
+		Description
+		-----------
+		Implementetion of the 'stats' command.
+		If a database is used then it prints information about this database. Otherwise it prints a warning message.
+		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object."""
+
+		self.used_database.stats()	
 
 	def scan(self, scan_targets_parameter, hash_functions_parameter, download_location_parameter = None, jobs_parameter = 1, autocommit_parameter = False, recursion_flag_parameter = True):
 		"""
@@ -485,3 +511,21 @@ class App:
 		"""		
 
 		self.used_database.search_duplicates(files_list, output_path_parameter)
+
+	def compare(self, fuzzy_func, ids_to_compare):
+		"""
+		Description
+		-----------
+		Implementetion of the 'scan' command.
+		If a database is used then we scan the scan targets and updates the database. Otherwise it prints a warning message.
+
+		Parameters
+		-----------
+		fuzzy_func: string
+			The name of the fuzzy hash function we will use for the comparsion
+
+		ids_to_compare - list of ints
+			List of ids of Hash records (primary keys of the HASH table) 
+		"""
+		
+		self.used_database.compare(fuzzy_func, ids_to_compare)

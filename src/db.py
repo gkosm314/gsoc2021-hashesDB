@@ -2,17 +2,19 @@ from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import sessionmaker, load_only
 from datetime import datetime
 from prettytable import PrettyTable
-from os import mkdir
-from os.path import abspath, isdir, join, split, exists
+from os import mkdir, listdir
+from os.path import abspath, isdir, join, split, exists, getsize
 from difflib import SequenceMatcher
 import sys
 import sqlparse
 from initialize_database import initialize_db_from_session
 from table_classes import *
-from scan import scanner, compute_hashes
+from scan import scanner, compute_hashes, comparsion
 from socket import gethostname
 from shutil import rmtree
 from output import output
+from importing import populate_table
+from itertools import combinations
 
 Session = sessionmaker()
 
@@ -129,11 +131,18 @@ class Db:
 				#If rollback was successful, then there are no unsaved changes now.
 				self.unsaved_changes_flag = False
 
-	def reset(self):
+	def reset(self, initialize_flag = True):
 		"""
 		Description
 		-----------
-		Reset the database from all its data, except the data that were inserted during the initialisation of the database."""
+		Reset the database from all its data, except the data that were inserted during the initialisation of the database.
+
+		Paramaters
+		-----------
+		initialize_flag - boolean
+			If True, then the database will be reinitialized.
+			If False, all the tables will remain empty
+		"""
 
 		#Ask for permission
 		permission = input("Are you sure you want to reset the database? All of its content will be deleted. [Y/N]")
@@ -147,12 +156,16 @@ class Db:
 		except Exception as e:
 			self.db_session.rollback()
 			print("Reseting the database failed...")	
-			print(e)	
+			print(e)
+			return False	
 		else:
 			print("Reseted the database successfully.")
 			self.db_session.commit()
 
-		initialize_db_from_session(self.db_session, self.get_database_path())
+		if initialize_flag:
+			initialize_db_from_session(self.db_session, self.get_database_path())
+
+		return True
 
 	def dbinfo(self):
 		"""
@@ -172,6 +185,136 @@ class Db:
 			print(f"Database version: {dbinfo_result.db_version}")
 			print(f"Last scan #id: {dbinfo_result.db_last_scan_id}")
 			print("")
+
+	def import_db(self, import_file_path_param, import_file_format_param):
+		"""
+		Description
+		-----------
+		Resets the database
+		Checks if the folder from which we want to import the data exists.
+		If the folder exists, we check that it contains exactly the files we need, in the correct format.
+		If the folder is valid, we iterate though the table and we populate each table using the respective file.
+		If something fails, we reset the database.
+
+		Paramaters
+		-----------
+		import_file_path_param - string
+			Path to the folder from which the tables will be populated
+
+		import_file_format_param - string
+			File format from which the tables will be populated
+			Supported file formats: CSV, TSV, JSON, YAML, XML
+		
+		Result
+		-----------
+		Resets the database and populates it with data stored in a different format.
+		"""
+
+		#Import files extension (with dot)
+		format_extension = '.' + import_file_format_param
+
+		#Check that the file from which you want to import data is a directory
+		import_path = abspath(import_file_path_param)
+		if not isdir(import_path):
+			print(f"Error: {import_path} is not a directory.")
+			return False
+
+		#Get the names of the tables through the SQLAlchemy engine Inspector
+		tablenames_list = self.insp.get_table_names()
+
+		#Check that the files required to complete the import exist inside the specified folder
+		files_in_folder = listdir(import_path)
+		for t in tablenames_list:
+			table_filename = t + format_extension
+			if not table_filename in files_in_folder:
+				print(f"Error: No file named {table_filename} found in {import_path}.")
+				print("Import failed")
+				return False
+
+		#Reset the database (without re-initilization)
+		reset_flag = self.reset(False)
+		if not reset_flag:
+			print("Error: Could not import data in the database, since the database reset failed.")
+			return False
+
+		for t in tablenames_list:
+			#For every table, search for the file that will populate it.
+			table_import_path = join(import_path, t + format_extension)
+
+			#If you cannot find it, print an error.
+			if not exists(table_import_path):
+				print(f"Error: Could not import data to populate table {t}. File {table_import_path} not found.")
+				print("Import failed")
+				self.reset()
+				return False
+			#Otherwise, populate the table
+			else:
+				try:
+					populate_table(self.db_session, table_import_path, t, format_extension)
+				except Exception as e:
+					print(f"Importing data to table {t} failed. In more detail:")
+					print(e)
+					print("Import failed")
+					self.reset()
+					return False
+				else:
+					print(f"Imported data to table {t} successfully.")
+
+		print(f"Imported data from {import_file_path_param} to database {self.get_database_path()} successfully.")
+
+		self.db_session.commit()
+
+	def stats(self):
+		"""
+		Description
+		-----------
+		Prints statistics about this particular database.."""
+
+		print(f"Statistics of database {self.database_path}")
+
+		#Initialize PrettyTable that will display the statistics regarding the database
+		stats_table = PrettyTable()
+		stats_table.field_names = ["Statistic", "Result"]
+
+		#Get memory size of database
+		stats_table.add_row([f"Memory size", f"{getsize(self.database_path)} bytes"])
+
+		#Get total number of hashes
+		hashes_query = self.db_session.query(Hash)
+		hashes_count = hashes_query.count()
+		stats_table.add_row(["Total number of hashes", f"{hashes_count} hashes"])
+
+		#Get total number of files
+		files_query = self.db_session.query(File)
+		files_count = files_query.count()
+		stats_table.add_row(["Total number of files", f"{files_count} files"])
+
+		#Get percentage of SoftwareHeritage-known files
+		# (no of known files/no of total files)*100 -> round so only two decimals remain -> convert to str -> concat a % symbol
+		swh_known_percentage = str(round((files_query.filter(File.swh_known.is_(False)).count()/files_count)*100, 2)) + "%"
+		stats_table.add_row(["Percentage of SoftwareHeritage known files", swh_known_percentage])
+	
+		#Align PrettyTable that displays the statistics regarding the database and print it
+		stats_table.align["Statistic"] = "l"
+		stats_table.align["Result"] = "r"
+		print(stats_table)
+
+		#Initialize PrettyTable that will display the statistics regarding the use of hash functions
+		hash_table = PrettyTable()
+		hash_table.field_names = ["Hash Function", "Number of hashes", "Percentage of total hashes"]
+
+		#For each hash function, count the hashes that were produced from it and calculate the percentage of the total hashes
+		for func_name in self.available_functions:
+			func_count = hashes_query.filter(Hash.hash_function_name == func_name).count()
+			func_percent = str(round((func_count/hashes_count)*100, 2)) + "%"
+			hash_table.add_row([func_name, func_count, func_percent])
+
+		#Align PrettyTable that displays the statistics regarding the use of hash functions and print it
+		hash_table.align["Hash Function"] = "l"
+		hash_table.align["Number of hashes"] = "c"
+		hash_table.align["Percentage of total hashes"] = "r"
+		hash_table.sortby = "Hash Function"
+		print(hash_table)
 
 	def export(self, export_folder_path_param, export_file_format_param, overwrite_flag = False):
 		"""
@@ -643,6 +786,78 @@ class Db:
 		#Search for the hash values using the search command
 		self.search(hashes_to_search, [], output_path_parameter)
 
+	def compare(self, fuzzy_func, ids_to_compare):
+		"""
+		Description
+		-----------
+		Checks that the hash function is available and is actually a fuzzy hash function
+		Checks that the given hash ids exist AND that the respective hash values were produced from the given hash function
+		Compares all the valid hash values pairwise and prints the results
+
+		Parameters
+		-----------
+		fuzzy_func: string
+			The name of the fuzzy hash function we will use for the comparsion
+
+		ids_to_compare - list of ints
+			List of ids of Hash records (primary keys of the HASH table) 
+		"""		
+
+		#Check that the hash function is available and is actually a fuzzy hash function
+		if not (fuzzy_func in self.available_functions):
+			#If the hash function is NOT available, print an error message
+			invalid_hash_msg = (f"Error: {fuzzy_func} is not an available hash function.\n"
+			"Use the 'hash-functions' command to learn more about the available hash functions "
+			"or the 'hash-is-available' command to investigate if a particular command is available.\n")
+			print(invalid_hash_msg)
+		else:
+			#If the hash function is NOT a fuzzy hash function, print an error message
+			try:
+				is_fuzzy_flag = self.db_session.query(HashFunction).get(fuzzy_func).hash_function_fuzzy_flag
+			except Exception as e:
+				print(f"Error: Something went wrong while trying to find '{fuzzy_func}' in the HASH_FUNCTION table. In more detail:")
+				print(e)
+				return False
+			else:
+				if not is_fuzzy_flag:
+					print(f"Error: '{fuzzy_func}' in not a fuzzy hash function. Use the 'hash-functions --details' command to find which fuzzy hash functions are available.")
+					return False
+
+		hashes_query = self.db_session.query(Hash)
+		hashes_for_comparsion = []
+
+		#For each hash id
+		for h_id in ids_to_compare:
+			h = hashes_query.get(h_id)
+
+			#Print error message if no Hash record with such id exist
+			if not h:
+				print(f"Error: no Hash record with id {h_id} was found. hashesdb will skip this id.")
+				continue
+
+			#Print error message if a hash produced from a different hash function is given
+			if h.hash_function_name != fuzzy_func:
+				print(f"Error: Hash record with id {h_id} was not produced from '{fuzzy_func}' hash function. hashesdb will skip this hash value.")
+				continue
+
+			#If the hash id is valid, add the hash to the hashes that will be compared
+			hashes_for_comparsion.append(h)
+
+		#Compare all the pairs
+		if len(hashes_for_comparsion) < 2:
+			print("No pair of hashes to compare")
+		else:
+			comparsion_results = []
+
+			#Compare all hashes pairwise and add the result to the comparsion_result list
+			for (a,b) in combinations(hashes_for_comparsion, 2):
+				print(f"[{fuzzy_func}] Comparing hash #{a.hash_id} with hash #{b.hash_id}...")
+				comparsion_results.append((a.hash_id,b.hash_id,comparsion(fuzzy_func,a.hash_value,b.hash_value)))
+
+			#Print all the comparsion results
+			for (first_hash_id, second_hash_id, comparesion_value) in comparsion_results:
+				print(f"[{fuzzy_func}] Comparsion between hash #{first_hash_id} and hash #{second_hash_id} = {comparesion_value}")
+
 
 class NoDb:
 	"""NoDb object is a object that provides the same interface as the Db object. It is used when we do NOT use a database in our application."""
@@ -715,7 +930,23 @@ class NoDb:
 
 		self.display_unused_warning()
 
-	def export(export_file_path_param, export_file_format_param, overwrite_flag = False):
+	def import_db(self, import_file_path_param, import_file_format_param):
+		"""
+		Description
+		-----------
+		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+		self.display_unused_warning()
+    
+	def stats(self):
+		"""
+		Description
+		-----------
+		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+		self.display_unused_warning()
+
+	def export(self, export_file_path_param, export_file_format_param, overwrite_flag = False):
 		"""
 		Description
 		-----------
@@ -764,6 +995,14 @@ class NoDb:
 		self.display_unused_warning()
 
 	def search_duplicates(self, files_list, output_path_parameter = sys.stdout):
+		"""
+		Description
+		-----------
+		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+		self.display_unused_warning()
+    
+	def compare(self, fuzzy_func, ids_to_compare):
 		"""
 		Description
 		-----------

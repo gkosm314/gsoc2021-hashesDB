@@ -229,7 +229,7 @@ def output_yaml(results, yaml_file_path):
 	"""	
 
 	with open(yaml_file_path, 'w', newline='') as f:
-		yaml.dump(results_to_dict(results),f)	
+		yaml.dump(results_to_dict(results),f,sort_keys=False)	
 
 def output_xml(results, xml_file_path):
 	"""
