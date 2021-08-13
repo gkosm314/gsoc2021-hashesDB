@@ -474,3 +474,21 @@ class App:
 		"""		
 
 		self.used_database.hash_is_available(hash_function_parameter)
+
+	def compare(self, fuzzy_func, ids_to_compare):
+		"""
+		Description
+		-----------
+		Implementetion of the 'scan' command.
+		If a database is used then we scan the scan targets and updates the database. Otherwise it prints a warning message.
+
+		Parameters
+		-----------
+		fuzzy_func: string
+			The name of the fuzzy hash function we will use for the comparsion
+
+		ids_to_compare - list of ints
+			List of ids of Hash records (primary keys of the HASH table) 
+		"""
+		
+		self.used_database.compare(fuzzy_func, ids_to_compare)
