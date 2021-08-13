@@ -135,6 +135,11 @@ class Db:
 		-----------
 		Reset the database from all its data, except the data that were inserted during the initialisation of the database."""
 
+		#Ask for permission
+		permission = input("Are you sure you want to reset the database? All of its content will be deleted. [Y/N]")
+		if not (permission == 'Y' or permission == 'y'):
+			return False
+
 		print("Reseting the database...")
 		try:
 			for class_name in Base.__subclasses__():
@@ -167,6 +172,106 @@ class Db:
 			print(f"Database version: {dbinfo_result.db_version}")
 			print(f"Last scan #id: {dbinfo_result.db_last_scan_id}")
 			print("")
+
+	def export(self, export_folder_path_param, export_file_format_param, overwrite_flag = False):
+		"""
+		Description
+		-----------
+		Checks if the folder in which we want to export the data already exists.
+		If the folder exists and the overwrite flag is set to True, the folder is recursively deleted.
+		After that, the folder is created. We obtain a list with the names of the database's tables.
+		We execute a SELECT statement for each table and we obtain all of each records.
+		We then export them inside the newly created folder.
+
+		Paramaters
+		-----------
+		export_file_path_param - string
+			Path to the folder where the table will be exported
+
+		export_file_format_param - string
+			File format in which the tables will be exported
+			Supported file formats: TXT, CSV, TSV, JSON, YAML, XML
+
+		overwrite_flag - boolean, optional
+			In case a .db file exists at the given path, then if overwrite_flag = True the file will be overwritten.
+			Otherwise an error message will be printed.
+		
+		Result
+		-----------
+		A folder which contains one file for each table of the database. The file has a specified format."""
+
+
+		folder_abs_path = abspath(export_folder_path_param)
+
+		parent_dir, folder_name = split(folder_abs_path)
+
+		#Check if the parent direcory exists.
+		if not isdir(parent_dir):
+			print(f"Error: Directory {parent_dir} does not exist.")
+			return False
+
+		#Check if the directory we want to create exists
+		if isdir(folder_abs_path):
+			#If the directory exists, then overwrite it or print an error message
+			if overwrite_flag:
+				try:
+					rmtree(folder_abs_path)
+				except Exception as e:
+					print(f"Error: Could not remove {folder_abs_path}. In more detail:")
+					print(e)
+					return False
+			else:	
+				print(f"Error: Directory {folder_abs_path} already exists.")
+				print("Use -overwrite flag to allow overwriting.")
+				return False
+
+		#Create the directory, where the data will be exported at
+		try:
+			mkdir(folder_abs_path)
+		except Exception as e:
+			print("Error: Could not create the folder in which the exported data will be saved. In more detail:")
+			print(e)
+			return False
+
+		#Get the names of the tables through the SQLAlchemy engine Inspector
+		table_names_list = self.insp.get_table_names()
+
+		#For each table, select all the records and export them to an new file (that has the specified format)
+		for table_name in table_names_list:
+
+			#Write and execute the SELECT query
+			select_query_string = f"SELECT * FROM {table_name}"
+			select_query = text(select_query_string)
+
+			try:
+				table_data = self.db_session.execute(select_query)
+			except Exception as e:
+				self.db_session.rollback()
+				print("Error: an error occurred while exporting a table. In more detail:")	
+				print(e)
+				try:
+					rmtree(folder_abs_path)
+				except Exception as e:
+					print(f"Error: Could not remove {folder_abs_path}. In more detail:")
+					print(e)
+					return False
+				return False
+			
+			table_filename = table_name + '.' + export_file_format_param #Name of the new file is the name of the table + the extension
+			table_file_path = join(folder_abs_path, table_filename) #Path of the new file
+
+			#Output the table in the file
+			output_successful_flag = output(table_data, table_file_path)
+			if not output_successful_flag:
+				print("Error: something went wrong during the creation of a file. Cancelling export...")
+				try:
+					rmtree(folder_abs_path)
+				except Exception as e:
+					print(f"Error: Could not remove {folder_abs_path}. In more detail:")
+					print(e)
+					return False
+
+		return True
 
 	def scan(self, scan_targets_parameter, hash_functions_parameter, download_location_parameter, autocommit_flag = False, recursion_flag_parameter = True):
 		"""
@@ -249,6 +354,120 @@ class Db:
 			self.unsaved_changes_flag = False
 		else:
 			self.unsaved_changes_flag = True
+
+	def search(self, hash_parameter, filename_parameter, output_path_parameter = sys.stdout):
+		"""
+		Description
+		-----------
+		Constructs a SQLAlchemy Query object by querying the 'File' table and appling filters.
+		Converts the Query object to a string containing a SQL query and executes the aforementioned query.
+		Outputs the results.
+
+		Parameters
+		-----------
+		hash_parameter: list of string
+			This is a list of hash values which will be used as search criteria
+
+		filename_parameter: list of string
+			This is a list of filenames which will be used as search criteria
+
+		output_path_parameter: string
+			Default: sys.stdout
+			This is a path to a file, where the output will be printed/saved.
+			Supported file formats: TXT, CSV, TSV, JSON, YAML, XML
+		"""
+
+		#If you have two search criteria use two filters. If you have one search criterion, use only that. If you do not have search criteria, do not use filters.
+		if hash_parameter and filename_parameter:
+			search_query = self.db_session.query(File).outerjoin(Hash).filter(Hash.hash_value.in_(hash_parameter), File.file_name.in_(filename_parameter)).add_columns(Hash.hash_value, Hash.hash_function_name)
+		elif hash_parameter:
+			search_query = self.db_session.query(File).outerjoin(Hash).filter(Hash.hash_value.in_(hash_parameter)).add_columns(Hash.hash_value, Hash.hash_function_name)
+		elif filename_parameter:
+			search_query = self.db_session.query(File).outerjoin(Hash).filter(File.file_name.in_(filename_parameter)).add_columns(Hash.hash_value, Hash.hash_function_name)
+		else:
+			search_query = self.db_session.query(File).outerjoin(Hash).add_columns(Hash.hash_value, Hash.hash_function_name)
+
+		#search_query_text is a SQL query (string).To understand the following line, read the docs here:
+		#https://docs.sqlalchemy.org/en/14/faq/sqlexpressions.html#how-do-i-render-sql-expressions-as-strings-possibly-with-bound-parameters-inlined
+		search_query_text = str(search_query.statement.compile(compile_kwargs={"literal_binds": True}))
+
+		#Try to execute the equivelant sql query
+		try:
+			search_results = self.db_session.execute(search_query_text)
+		except Exception as e:
+			#If the query can't be executed, cancel the execution and print an error message
+			#We use rollback to avoid database disconnection
+			self.db_session.rollback()
+			print("Error: an error occurred while searching the database. In more detail:")
+			print(e)
+		else:
+			output(search_results, output_path_parameter)
+			if output_path_parameter == sys.stdout:
+				print("Note: if the results do not fit in your screen, use the --output argument to print them in a new file")
+		
+	def sql_query(self, sql_query_string_parameter, output_path_parameter = sys.stdout, autocommit_flag = False):
+		"""
+		Description
+		-----------
+		
+		
+		Parameters
+		-----------
+		sql_query_string_parameter: string, optional
+			This is a SQL query encapsulated inside double quotes (For example: "SELECT...").
+			The double quotes are included in the string.		
+
+		output_path_parameter: string
+			Default: sys.stdout
+			This is a path to a file, where the output will be printed/saved.
+			Supported file formats: TXT,CSV, JSON, YAML, XML
+
+		autocommit_parameter: boolean, optional
+			Default: False
+			In case this flag is set to True, the changes will be commited to the before the function ends.
+			The main intention of this flag is to make sure the changes made by 'DELETE' SQL queries are saved when the sql subcommand is executed from the terminal.
+
+			IMPORTANT NOTE: this flag is supposed to be set to True only when this method is called in order to execute a standalone command.
+			If you set this parameter ro True when you execute a sql command from the REPL, it is possible that changes made before the execution
+			of the SQL query will be commited too.			
+		"""
+
+		#This flag is True if the SQL query is a 'SELECT' query and False if it is a 'DELETE' query
+		select_query_flag = True
+
+		#Check that the string is actually a SQL query using sqlparse library
+		statements = sqlparse.parse(sql_query_string_parameter)
+		for statement in statements:
+			if statement.get_type() != "SELECT":
+				if statement.get_type() != "DELETE":
+					#Neither SELECT nor DELETE, so print an error message
+					print("Error: the sql command only accepts SELECT and DELETE statements")
+					return False
+				else:
+					#Not 'SELECT' but 'DELETE', so set flag to false
+					select_query_flag = False
+
+		#Convert the string to a SQLAlchemyORM TextClause in order to execute it
+		sql_text = text(sql_query_string_parameter)  
+
+		#Documentation of session.execute(): https://docs.sqlalchemy.org/en/14/orm/session_api.html#sqlalchemy.orm.Session.execute
+		try:
+			#Try to execute the given query
+			sql_results = self.db_session.execute(sql_text)
+		except Exception as e:
+			#If the query can;t be executed, cancel the execution and print an error message
+			self.db_session.rollback()
+			print("Error: an error occurred while executing the SQL query. In more detail:")
+			print(e)
+		else:
+			#If the executed query is a 'SELECT' query print the results, otherwise it is a 'DELETE' query and you should check if you should commit the changes.
+			if select_query_flag:
+				output(sql_results, output_path_parameter)
+			elif autocommit_flag:
+				self.db_session.commit()
+				self.unsaved_changes_flag = False
+			else:
+				self.unsaved_changes_flag = True
 
 	def hash_functions(self, details_flag = False):
 		"""
@@ -336,7 +555,7 @@ class Db:
 
 				#Prompt the user to find more info about the available hash functions by using the hash-functions subcommand
 				print("\nYou can use the 'hashesdb hash-functions' command to find more information about all the available hash functions.\n")
-				return False		
+				return False
 
 	def valid_hash_functions(self, hash_functions_parameter):
 		"""
@@ -370,7 +589,6 @@ class Db:
 
 		#Remove duplicate hash function names
 		return list(set(valid_func_list))
-
 
 class NoDb:
 	"""NoDb object is a object that provides the same interface as the Db object. It is used when we do NOT use a database in our application."""
@@ -443,7 +661,31 @@ class NoDb:
 
 		self.display_unused_warning()
 
+	def export(export_file_path_param, export_file_format_param, overwrite_flag = False):
+		"""
+		Description
+		-----------
+		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+		self.display_unused_warning()
+
 	def scan(self, scan_targets_parameter, hash_functions_parameter, download_location_parameter, autocommit_flag = False, recursion_flag_parameter = True):
+		"""
+		Description
+		-----------
+		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+		self.display_unused_warning()
+
+	def search(self, hash_parameter, filename_parameter, output_path_parameter = sys.stdout):
+		"""
+		Description
+		-----------
+		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+		self.display_unused_warning()
+
+	def sql_query(self, sql_query_string_parameter, output_path_parameter = sys.stdout):
 		"""
 		Description
 		-----------
@@ -460,12 +702,12 @@ class NoDb:
 		self.display_unused_warning()
 
 	def hash_is_available(self, hash_function_parameter):
-			"""
-			Description
-			-----------
-			This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+		"""
+		Description
+		-----------
+		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
 
-			self.display_unused_warning()		
+		self.display_unused_warning()
 
 def database_is_used(database_object):
 	"""
