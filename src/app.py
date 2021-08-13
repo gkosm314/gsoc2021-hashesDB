@@ -491,6 +491,27 @@ class App:
 
 		self.used_database.hash_is_available(hash_function_parameter)
 
+	def search_duplicates(self, files_list, output_path_parameter = sys.stdout):
+		"""
+		Description
+		-----------
+		Implementetion of the 'search_duplicates' command.
+		If a database is used then it prints information about this database. Otherwise it prints a warning message.
+		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object.
+
+		Parameters
+		-----------
+		files_list: list of strings
+			A list of strings. The strings should be paths to files whose content we want to search for.
+
+		output_path_parameter: string
+			Default: sys.stdout
+			This is a path to a file, where the output will be printed/saved.
+			Supported file formats: TXT, CSV, TSV, JSON, YAML, XML		
+		"""		
+
+		self.used_database.search_duplicates(files_list, output_path_parameter)
+
 	def compare(self, fuzzy_func, ids_to_compare):
 		"""
 		Description

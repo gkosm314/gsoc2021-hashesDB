@@ -94,7 +94,8 @@ class ParserTemplate:
 		#search-duplicates subcommand parser
 		search_duplicates_help_msg = "search for duplicates of a file inside a specified hashesdb database"
 		self.parser_search_duplicates = self.subparsers.add_parser('search-duplicates', help= search_duplicates_help_msg, description = search_duplicates_help_msg)
-		self.parser_search_duplicates.add_argument('-f', '--file', nargs='+', action = "store", metavar = "FILE_PATH", required = True, help = "paths of files to look for in the specified database")
+		self.parser_search_duplicates.add_argument('-f', '--files', nargs='+', action = "store", metavar = "FILE_PATH", required = True, help = "paths of files to look for in the specified database")
+		self.parser_search_duplicates.add_argument('-o','--output', default= sys.stdout, action='store', metavar = "OUTPUT_PATH", help = "path to output file, default: stdout (Supported file formats: TXT, CSV, TSV, JSON, YAML, XML)")
 
 		#compare subcommand parser
 		compare_help_msg = "perform similarity comparsion with the use of fuzzy hashing"
@@ -211,7 +212,7 @@ class TerminalParser(ParserTemplate):
 		App(args.database).hash_is_available(args.hash_function_name)
 
 	def subcommand_search_duplicates(self,args):
-		pass
+		App(args.database).search_duplicates(args.files, args.output)
 
 	def subcommand_compare(self,args):
 		App(args.database).compare(args.fuzzy, args.hash_ids)
@@ -340,7 +341,7 @@ class ReplParser(ParserTemplate):
 		self.app.hash_is_available(args.hash_function_name)
 
 	def repl_search_duplicates(self,args):
-		pass
+		self.app.search_duplicates(args.files, args.output)
 
 	def repl_compare(self,args):
 		self.app.compare(args.fuzzy, args.hash_ids)

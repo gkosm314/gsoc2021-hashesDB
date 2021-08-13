@@ -741,7 +741,6 @@ def insert_hash(db_session_param, target_object_path, hash_func_name, file_id_pa
 		-if the insertion of the hash into the database fails
 	"""
 
-
 	#Block size (the hash calculation is done one memory block at a time, in order to be able to calculate hashes of files that exceed the size of the memory)
 	chunk_size = 4096
 
@@ -849,6 +848,81 @@ def resolve_swhid(swhid_hash):
 		return False
 	else:
 		return None
+
+def compute_hashes(file_path, hashes_to_compute):
+	"""
+	Description
+	-----------
+	Compute all the hashes that are produced from the given hash functionsm for the given
+
+	Parameters
+	-----------
+	file_path: string
+		Path to the file for which we calculate the hash value
+
+	hashes_to_compute: list of strings
+		List of hash functions we will use to compute the hash values of the file
+
+	Returns
+	-----------
+	computed_hashes: list of strings
+		List of hash values that correspond to the outputs of the hash functions in hashes_to_compute when they are given the file located at file_path as input
+
+	Raises
+	-----------
+	Raises an Exception if opening the file fails
+	"""		
+
+	computed_hashes = []
+
+	#If no hash functions were given, do not compute anything
+	if not hashes_to_compute:
+		return computed_hashes
+	
+	#Block size (the hash calculation is done one memory block at a time, in order to be able to calculate hashes of files that exceed the size of the memory)
+	chunk_size = 4096
+
+	#For each given hash function, calculate the hash value an add it to the result
+	for func in hashes_to_compute:
+
+		#Skip SWHID, since it is computed independently
+		if func == 'swhid':
+			continue
+
+		#Construct a HashObject 
+		hash_object = HashObject(func)
+
+		#Open the file whose hashes you want to compute	
+		try:
+			f = open(file_path, 'rb') #rb = open in binary format
+		except Exception as e:
+			#If you fail to open the file, raise an error
+			raise e
+		else:
+			#Calculate the hash
+			for block in iter(lambda: f.read(chunk_size), b""):
+				hash_object.update(block)
+
+			#Close the file
+			f.close()
+
+		#Add the hash value to the result
+		try:
+			computed_hashes.append(hash_object.get_hash())
+		except Exception as e:
+			print("Error: Calculation of {func} hash of {file_path} failed. This hash will be excluded from the search. In more detail:")
+			print(e)
+
+	#Compute SWHID
+	try:
+		swh_identifier = pid_of_file(file_path) #function imported from swh.model.cli
+	except Exception as e:
+		print("Error: Calculation of SWHID hash of {file_path} failed. This hash will be excluded from the search. In more detail:")
+		print(e)
+	else:
+		computed_hashes.append(swh_identifier)
+
+	return computed_hashes
 
 def comparsion(fuzzy_func, h1, h2):
 	"""

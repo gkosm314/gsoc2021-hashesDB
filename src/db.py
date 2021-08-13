@@ -9,7 +9,7 @@ import sys
 import sqlparse
 from initialize_database import initialize_db_from_session
 from table_classes import *
-from scan import scanner, comparsion
+from scan import scanner, compute_hashes, comparsion
 from socket import gethostname
 from shutil import rmtree
 from output import output
@@ -733,6 +733,59 @@ class Db:
 		#Remove duplicate hash function names
 		return list(set(valid_func_list))
 
+	def search_duplicates(self, files_list, output_path_parameter = sys.stdout):
+		"""
+		Description
+		-----------
+		Implementetion of the 'search_duplicates' command.
+		If a database is used then it prints information about this database. Otherwise it prints a warning message.
+		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object.
+
+		Parameters
+		-----------
+		files_list: list of strings
+			A list of strings. The strings should be paths to files whose content we want to search for.
+
+		output_path_parameter: string
+			Default: sys.stdout
+			This is a path to a file, where the output will be printed/saved.
+			Supported file formats: TXT, CSV, TSV, JSON, YAML, XML	
+		"""		
+
+		#All the hashes we will look for
+		hashes_of_all_files = []
+
+		#For each file whose content you want to search for:
+		for p in files_list:
+
+			#Convert relative paths to absolute paths
+			absolute_file_path = abspath(p)
+
+			#If no sich file exists, print an error message
+			if not exists(absolute_file_path):
+				print(f"Error: No such file: {target}")
+				continue
+			#If the file is a directory, print an error message
+			elif isdir(absolute_file_path):
+				print(f"Error: {absolute_file_path} is a directory.")
+				continue
+
+			#Compute all the possible hashes for the file whose content we are searching for
+			try:
+				hashes_of_file = compute_hashes(absolute_file_path, self.available_functions)
+			except Exception as e:
+				print("Opening file {absolute_file_path} failed. This file will be excluded from the search. In more detail:") #TODO: fill this
+				print(e)
+			else:
+				#Add the hash values you previously computed to the hashes we are going to search for
+				hashes_of_all_files.extend(hashes_of_file)
+			
+		#Remove duplicated hash values
+		hashes_to_search = list(set(hashes_of_all_files))
+
+		#Search for the hash values using the search command
+		self.search(hashes_to_search, [], output_path_parameter)
+
 	def compare(self, fuzzy_func, ids_to_compare):
 		"""
 		Description
@@ -941,13 +994,21 @@ class NoDb:
 
 		self.display_unused_warning()
 
+	def search_duplicates(self, files_list, output_path_parameter = sys.stdout):
+		"""
+		Description
+		-----------
+		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+		self.display_unused_warning()
+    
 	def compare(self, fuzzy_func, ids_to_compare):
 		"""
 		Description
 		-----------
 		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
 
-		self.display_unused_warning()		
+		self.display_unused_warning()
 
 def database_is_used(database_object):
 	"""
