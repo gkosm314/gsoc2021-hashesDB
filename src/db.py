@@ -552,7 +552,8 @@ class Db:
 		"""
 		Description
 		-----------
-		
+		Checks that the SQL query is either a SELECT or a DELETE query.
+		Executes the SQL statement.
 		
 		Parameters
 		-----------
