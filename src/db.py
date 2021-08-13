@@ -2,8 +2,8 @@ from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import sessionmaker, load_only
 from datetime import datetime
 from prettytable import PrettyTable
-from os import mkdir
-from os.path import abspath, isdir, join, split, getsize
+from os import mkdir, listdir
+from os.path import abspath, isdir, join, split, exists, getsize
 from difflib import SequenceMatcher
 import sys
 import sqlparse
@@ -13,6 +13,7 @@ from scan import scanner, comparsion
 from socket import gethostname
 from shutil import rmtree
 from output import output
+from importing import populate_table
 from itertools import combinations
 
 Session = sessionmaker()
@@ -130,11 +131,18 @@ class Db:
 				#If rollback was successful, then there are no unsaved changes now.
 				self.unsaved_changes_flag = False
 
-	def reset(self):
+	def reset(self, initialize_flag = True):
 		"""
 		Description
 		-----------
-		Reset the database from all its data, except the data that were inserted during the initialisation of the database."""
+		Reset the database from all its data, except the data that were inserted during the initialisation of the database.
+
+		Paramaters
+		-----------
+		initialize_flag - boolean
+			If True, then the database will be reinitialized.
+			If False, all the tables will remain empty
+		"""
 
 		#Ask for permission
 		permission = input("Are you sure you want to reset the database? All of its content will be deleted. [Y/N]")
@@ -148,12 +156,16 @@ class Db:
 		except Exception as e:
 			self.db_session.rollback()
 			print("Reseting the database failed...")	
-			print(e)	
+			print(e)
+			return False	
 		else:
 			print("Reseted the database successfully.")
 			self.db_session.commit()
 
-		initialize_db_from_session(self.db_session, self.get_database_path())
+		if initialize_flag:
+			initialize_db_from_session(self.db_session, self.get_database_path())
+
+		return True
 
 	def dbinfo(self):
 		"""
@@ -173,6 +185,84 @@ class Db:
 			print(f"Database version: {dbinfo_result.db_version}")
 			print(f"Last scan #id: {dbinfo_result.db_last_scan_id}")
 			print("")
+
+	def import_db(self, import_file_path_param, import_file_format_param):
+		"""
+		Description
+		-----------
+		Resets the database
+		Checks if the folder from which we want to import the data exists.
+		If the folder exists, we check that it contains exactly the files we need, in the correct format.
+		If the folder is valid, we iterate though the table and we populate each table using the respective file.
+		If something fails, we reset the database.
+
+		Paramaters
+		-----------
+		import_file_path_param - string
+			Path to the folder from which the tables will be populated
+
+		import_file_format_param - string
+			File format from which the tables will be populated
+			Supported file formats: CSV, TSV, JSON, YAML, XML
+		
+		Result
+		-----------
+		Resets the database and populates it with data stored in a different format.
+		"""
+
+		#Import files extension (with dot)
+		format_extension = '.' + import_file_format_param
+
+		#Check that the file from which you want to import data is a directory
+		import_path = abspath(import_file_path_param)
+		if not isdir(import_path):
+			print(f"Error: {import_path} is not a directory.")
+			return False
+
+		#Get the names of the tables through the SQLAlchemy engine Inspector
+		tablenames_list = self.insp.get_table_names()
+
+		#Check that the files required to complete the import exist inside the specified folder
+		files_in_folder = listdir(import_path)
+		for t in tablenames_list:
+			table_filename = t + format_extension
+			if not table_filename in files_in_folder:
+				print(f"Error: No file named {table_filename} found in {import_path}.")
+				print("Import failed")
+				return False
+
+		#Reset the database (without re-initilization)
+		reset_flag = self.reset(False)
+		if not reset_flag:
+			print("Error: Could not import data in the database, since the database reset failed.")
+			return False
+
+		for t in tablenames_list:
+			#For every table, search for the file that will populate it.
+			table_import_path = join(import_path, t + format_extension)
+
+			#If you cannot find it, print an error.
+			if not exists(table_import_path):
+				print(f"Error: Could not import data to populate table {t}. File {table_import_path} not found.")
+				print("Import failed")
+				self.reset()
+				return False
+			#Otherwise, populate the table
+			else:
+				try:
+					populate_table(self.db_session, table_import_path, t, format_extension)
+				except Exception as e:
+					print(f"Importing data to table {t} failed. In more detail:")
+					print(e)
+					print("Import failed")
+					self.reset()
+					return False
+				else:
+					print(f"Imported data to table {t} successfully.")
+
+		print(f"Imported data from {import_file_path_param} to database {self.get_database_path()} successfully.")
+
+		self.db_session.commit()
 
 	def stats(self):
 		"""
@@ -225,7 +315,6 @@ class Db:
 		hash_table.align["Percentage of total hashes"] = "r"
 		hash_table.sortby = "Hash Function"
 		print(hash_table)
-
 
 	def export(self, export_folder_path_param, export_file_format_param, overwrite_flag = False):
 		"""
@@ -788,6 +877,14 @@ class NoDb:
 
 		self.display_unused_warning()
 
+	def import_db(self, import_file_path_param, import_file_format_param):
+		"""
+		Description
+		-----------
+		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+		self.display_unused_warning()
+    
 	def stats(self):
 		"""
 		Description
@@ -796,7 +893,7 @@ class NoDb:
 
 		self.display_unused_warning()
 
-	def export(export_file_path_param, export_file_format_param, overwrite_flag = False):
+	def export(self, export_file_path_param, export_file_format_param, overwrite_flag = False):
 		"""
 		Description
 		-----------

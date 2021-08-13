@@ -255,9 +255,25 @@ class App:
 		except OSError:
 			print("Error: Could not open docs/schema_documentation.txt")
 
-	def import_db(self, import_database_path_param, import_file_path_param, import_file_format_param, overwrite_flag = False):
-		#import command implementation here...
-		pass
+	def import_db(self, import_file_path_param, import_file_format_param):
+		"""
+		Description
+		-----------
+		Implementetion of the 'import' command.
+		If a database is used and it has unsaved changes then it saves them. Otherwise it prints a warning message.
+		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object.
+
+		Paramaters
+		-----------
+		import_file_path_param - string
+			Path to the folder from which the tables will be populated
+
+		import_file_format_param - string
+			File format from which the tables will be populated
+			Supported file formats: CSV, TSV, JSON, YAML, XML
+		"""
+
+		self.used_database.import_db(import_file_path_param, import_file_format_param)
 
 	def export_db(self, export_file_path_param, export_file_format_param, overwrite_flag = False):
 		"""
