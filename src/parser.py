@@ -33,8 +33,7 @@ class ParserTemplate:
 		self.parser_import = self.subparsers.add_parser('import', help= import_help_msg, description = import_help_msg)
 		self.parser_import.add_argument('-f', '--folder', metavar = 'IMPORT_FOLDER_PATH', action = "store", help = "path to the folder that will be imported")
 		self.parser_import.add_argument('-d', '--database', '--db', required = True, metavar = 'IMPORT_DATABASE_PATH', action = "store", help = "path to the new hashesdb database (.db file)")
-		self.parser_import.add_argument('-e','--extension', metavar = 'IMPORT_FILE_FORMAT', action = "store", choices=['txt','csv','tsv','json','yaml','xml'], help = "Supported file formats: TXT, CSV, TSV, JSON, YAML, XML")
-		self.parser_import.add_argument('--overwrite', action='store_true', help = "flag: allows the tool to overwrite other databases when it creates a new hashesdb database")
+		self.parser_import.add_argument('-e','--extension', metavar = 'IMPORT_FILE_FORMAT', action = "store", choices=['csv','tsv','json','yaml','xml'], help = "Supported file formats: TXT, CSV, TSV, JSON, YAML, XML")
 
 		#export subcommand parser
 		export_help_msg = "create a new file which contains data saved in a hashesdb database"
@@ -180,7 +179,7 @@ class TerminalParser(ParserTemplate):
 		App().create(args.database, args.overwrite)
 
 	def subcommand_import(self,args):
-		pass
+		App(args.database).import_db(args.folder, args.extension)
 
 	def subcommand_export(self,args):
 		App(args.database).export_db(args.folder, args.extension, args.overwrite)
@@ -311,7 +310,7 @@ class ReplParser(ParserTemplate):
 		self.app.create(args.database, args.overwrite)
 
 	def repl_import(self,args):
-		pass
+		self.app.import_db(args.folder, args.extension)
 
 	def repl_export(self,args):
 		self.app.export_db(args.folder, args.extension, args.overwrite)
