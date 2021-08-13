@@ -204,7 +204,7 @@ class TerminalParser(ParserTemplate):
 		App(args.database).dbinfo()
 
 	def subcommand_stats(self,args):
-		pass
+		App(args.database).stats()
 
 	def subcommand_hash_functions(self,args):
 		App(args.database).hash_functions(args.details)
@@ -333,7 +333,7 @@ class ReplParser(ParserTemplate):
 		self.app.dbinfo()
 
 	def repl_stats(self,args):
-		pass
+		self.app.stats()
 
 	def repl_hash_functions(self,args):
 		self.app.hash_functions(args.details)

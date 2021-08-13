@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker, load_only
 from datetime import datetime
 from prettytable import PrettyTable
 from os import mkdir
-from os.path import abspath, isdir, join, split
+from os.path import abspath, isdir, join, split, getsize
 from difflib import SequenceMatcher
 import sys
 import sqlparse
@@ -172,6 +172,59 @@ class Db:
 			print(f"Database version: {dbinfo_result.db_version}")
 			print(f"Last scan #id: {dbinfo_result.db_last_scan_id}")
 			print("")
+
+	def stats(self):
+		"""
+		Description
+		-----------
+		Prints statistics about this particular database.."""
+
+		print(f"Statistics of database {self.database_path}")
+
+		#Initialize PrettyTable that will display the statistics regarding the database
+		stats_table = PrettyTable()
+		stats_table.field_names = ["Statistic", "Result"]
+
+		#Get memory size of database
+		stats_table.add_row([f"Memory size", f"{getsize(self.database_path)} bytes"])
+
+		#Get total number of hashes
+		hashes_query = self.db_session.query(Hash)
+		hashes_count = hashes_query.count()
+		stats_table.add_row(["Total number of hashes", f"{hashes_count} hashes"])
+
+		#Get total number of files
+		files_query = self.db_session.query(File)
+		files_count = files_query.count()
+		stats_table.add_row(["Total number of files", f"{files_count} files"])
+
+		#Get percentage of SoftwareHeritage-known files
+		# (no of known files/no of total files)*100 -> round so only two decimals remain -> convert to str -> concat a % symbol
+		swh_known_percentage = str(round((files_query.filter(File.swh_known.is_(False)).count()/files_count)*100, 2)) + "%"
+		stats_table.add_row(["Percentage of SoftwareHeritage known files", swh_known_percentage])
+	
+		#Align PrettyTable that displays the statistics regarding the database and print it
+		stats_table.align["Statistic"] = "l"
+		stats_table.align["Result"] = "r"
+		print(stats_table)
+
+		#Initialize PrettyTable that will display the statistics regarding the use of hash functions
+		hash_table = PrettyTable()
+		hash_table.field_names = ["Hash Function", "Number of hashes", "Percentage of total hashes"]
+
+		#For each hash function, count the hashes that were produced from it and calculate the percentage of the total hashes
+		for func_name in self.available_functions:
+			func_count = hashes_query.filter(Hash.hash_function_name == func_name).count()
+			func_percent = str(round((func_count/hashes_count)*100, 2)) + "%"
+			hash_table.add_row([func_name, func_count, func_percent])
+
+		#Align PrettyTable that displays the statistics regarding the use of hash functions and print it
+		hash_table.align["Hash Function"] = "l"
+		hash_table.align["Number of hashes"] = "c"
+		hash_table.align["Percentage of total hashes"] = "r"
+		hash_table.sortby = "Hash Function"
+		print(hash_table)
+
 
 	def export(self, export_folder_path_param, export_file_format_param, overwrite_flag = False):
 		"""
@@ -654,6 +707,14 @@ class NoDb:
 		self.display_unused_warning()
 
 	def dbinfo(self):
+		"""
+		Description
+		-----------
+		This method refer to commands that can only be applied when a database is used, so they print a relative warning message."""
+
+		self.display_unused_warning()
+
+	def stats(self):
 		"""
 		Description
 		-----------
