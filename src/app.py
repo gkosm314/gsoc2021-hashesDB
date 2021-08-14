@@ -508,3 +508,4 @@ class App:
 		"""
 		
 		self.used_database.compare(fuzzy_func, ids_to_compare)
+
