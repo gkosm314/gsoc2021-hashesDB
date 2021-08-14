@@ -1,5 +1,5 @@
 from create import is_hashesdb_database, is_valid_db_path, create as create_create
-from os.path import abspath,isfile
+from os.path import abspath, isfile, dirname
 from os import getcwd
 from sys import exit as sys_exit
 import sys
@@ -248,17 +248,33 @@ class App:
 		#Print maximum threads
 		print(f"Working directory: {self.working_directory}\n")				
 
-
 	def schema(self):
 		try:
-			schema_documentation = open('../docs/schema_documentation.txt','r')
+			schema_documentation = open(dirname(__file__) + '/../docs/schema_documentation.txt','r')
 			print(schema_documentation.read())
-		except OSError:
+		except OSError as e:
 			print("Error: Could not open docs/schema_documentation.txt")
+			print(e)
 
-	def import_db(self, import_database_path_param, import_file_path_param, import_file_format_param, overwrite_flag = False):
-		#import command implementation here...
-		pass
+	def import_db(self, import_file_path_param, import_file_format_param):
+		"""
+		Description
+		-----------
+		Implementetion of the 'import' command.
+		If a database is used and it has unsaved changes then it saves them. Otherwise it prints a warning message.
+		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object.
+
+		Paramaters
+		-----------
+		import_file_path_param - string
+			Path to the folder from which the tables will be populated
+
+		import_file_format_param - string
+			File format from which the tables will be populated
+			Supported file formats: CSV, TSV, JSON, YAML, XML
+		"""
+
+		self.used_database.import_db(import_file_path_param, import_file_format_param)
 
 	def export_db(self, export_file_path_param, export_file_format_param, overwrite_flag = False):
 		"""
@@ -272,7 +288,7 @@ class App:
 		-----------
 		export_file_path_param - string
 			Path to the folder where the table will be exported
-
+      
 		export_file_format_param - string
 			File format in which the tables will be exported
 			Supported file formats: TXT, CSV, TSV, JSON, YAML, XML
@@ -323,6 +339,93 @@ class App:
 		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object."""
 
 		self.used_database.dbinfo()
+
+	def stats(self):
+		"""
+		Description
+		-----------
+		Implementetion of the 'stats' command.
+		If a database is used then it prints information about this database. Otherwise it prints a warning message.
+		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object."""
+
+		self.used_database.stats()	
+
+	def scan(self, scan_targets_parameter, hash_functions_parameter, download_location_parameter = None, jobs_parameter = 1, autocommit_parameter = False, recursion_flag_parameter = True):
+		"""
+		Description
+		-----------
+		Implementetion of the 'scan' command.
+		If a database is used then we scan the scan targets and updates the database. Otherwise it prints a warning message.
+
+		Parameters
+		-----------
+		scan_targets_parameter: a list of lists of scan targets(strings)
+			List 1: a list of local scan targets (files and directories)
+			List 2: a list of Github repos
+			List 3: a list of Gitlab project ids
+
+		hash_function_parameter: list of hash function names(strings)
+			hash function name: a name contained in the hash_function_name column of the HASH_FUNCTION table
+		
+		download_location_parameter: string, optional
+			Default value: None (which gets redirected to self.working_direcotry)
+			A path(relative or absolute) to the location in which the downloaded files will be saved.
+			The only files we download are remote scan targets(links to github/gitlab/bitbucket)
+
+		jobs_parameter: int, optional
+			Default value: 1
+			This parameters sets the maximum number of threads that can be used while performing this scan.
+
+		recursion_flag_parameter: boolean, optional
+			Default value: True
+			If this parameter is True, then we recursively scan the contents of all the directories.
+			Otherwise we do not scan the directories (we skip them).
+
+		autocommit_parameter: boolean, optional
+			Default: False
+			In case this flag is set to True, the changes will be commited to the before the function ends.
+			The main intention of this flag is to make sure the changes made by 'DELETE' SQL queries are saved when the sql subcommand is executed from the terminal.
+
+			IMPORTANT NOTE: this flag is supposed to be set to True only when this method is called in order to execute a standalone command.
+			If you set this parameter ro True when you execute a sql command from the REPL, it is possible that changes made before the execution
+			of the SQL query will be commited too.
+		"""
+
+		#If no directory is given for the remote files to be saved, then we set the working directory as the directory to be used as the download location for the remote files
+		if download_location_parameter is None:
+			download_location_parameter = self.working_directory
+		else:
+			abspath(download_location_parameter)
+
+		#If the jobs_parameter argument demands the current maximum number of threads allowed to changes, then we change the equivelant variable through  
+		if jobs_parameter != self.max_threads:
+			self.threads(jobs_parameter)
+
+		self.used_database.scan(scan_targets_parameter, hash_functions_parameter, download_location_parameter, autocommit_parameter, recursion_flag_parameter)
+
+	def search(self, hash_parameter, filename_parameter, output_path_parameter = sys.stdout):
+		"""
+		Description
+		-----------
+		Implementetion of the 'search' command.
+		If a database is used then it prints the hash functions available in the specified database. Otherwise it prints a warning message.
+		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object.
+
+		Parameters
+		-----------
+		hash_parameter: list of string
+			This is a list of hash values which will be used as search criteria
+
+		filename_parameter: list of string
+			This is a list of filenames which will be used as search criteria
+
+		output_path_parameter: string
+			Default: sys.stdout
+			This is a path to a file, where the output will be printed/saved.
+			Supported file formats: TXT, CSV, TSV, JSON, YAML, XML
+		"""
+		
+		self.used_database.search(hash_parameter, filename_parameter, output_path_parameter)
 
 	def sql_query(self, sql_query_string_parameter, output_path_parameter = sys.stdout, autocommit_parameter = False):
 		"""
@@ -388,3 +491,42 @@ class App:
 		"""		
 
 		self.used_database.hash_is_available(hash_function_parameter)
+
+	def search_duplicates(self, files_list, output_path_parameter = sys.stdout):
+		"""
+		Description
+		-----------
+		Implementetion of the 'search_duplicates' command.
+		If a database is used then it prints information about this database. Otherwise it prints a warning message.
+		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object.
+
+		Parameters
+		-----------
+		files_list: list of strings
+			A list of strings. The strings should be paths to files whose content we want to search for.
+
+		output_path_parameter: string
+			Default: sys.stdout
+			This is a path to a file, where the output will be printed/saved.
+			Supported file formats: TXT, CSV, TSV, JSON, YAML, XML		
+		"""		
+
+		self.used_database.search_duplicates(files_list, output_path_parameter)
+
+	def compare(self, fuzzy_func, ids_to_compare):
+		"""
+		Description
+		-----------
+		Implementetion of the 'scan' command.
+		If a database is used then we scan the scan targets and updates the database. Otherwise it prints a warning message.
+
+		Parameters
+		-----------
+		fuzzy_func: string
+			The name of the fuzzy hash function we will use for the comparsion
+
+		ids_to_compare - list of ints
+			List of ids of Hash records (primary keys of the HASH table) 
+		"""
+		
+		self.used_database.compare(fuzzy_func, ids_to_compare)

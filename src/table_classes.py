@@ -34,32 +34,23 @@ class Scan(Base):
    files = relationship("File", back_populates="scan")
 
 
-class Origin(Base):
-   __tablename__ = 'ORIGIN'
-   origin_id = Column(Integer, primary_key = True)
-   origin_is_local_flag = Column(Boolean)
-   origin_url_or_hostname = Column(String)
-   origin_retrival_datetime = Column(DateTime)
-
-   files = relationship("File", back_populates="origin")
-
-
 class File(Base):
    __tablename__ = 'FILE'
-   file_id = Column(Integer, primary_key = True)
+   id = Column(Integer, primary_key = True)
    scan_id = Column(Integer, ForeignKey('SCAN.scan_id'))
    file_name = Column(String)
    file_extension = Column(String)
    file_path = Column(String)
    file_size = Column(BigInteger)
-   file_date_created = Column(DateTime)
-   file_date_modified = Column(DateTime)
+   date_created = Column(DateTime)
+   date_modified = Column(DateTime)
+   date_retrieved = Column(DateTime)
    swh_known = Column(Boolean)
-   file_updated = Column(Boolean)
-   origin_id = Column(Integer, ForeignKey('ORIGIN.origin_id'))
+   updated = Column(Boolean)
+   origin = Column(String)
 
    scan = relationship("Scan", back_populates="files")
-   origin = relationship("Origin", back_populates="files")
+   hashes = relationship("Hash", back_populates="files")
 
 
 class Hash(Base):
@@ -67,10 +58,10 @@ class Hash(Base):
    hash_id = Column(Integer, primary_key = True)
    hash_value = Column(String)
    hash_function_name = Column(String, ForeignKey('HASH_FUNCTION.hash_function_name'))
-   file_id = Column(Integer, ForeignKey('FILE.file_id'))
+   file_id = Column(Integer, ForeignKey('FILE.id'))
 
    hash_function = relationship("HashFunction", back_populates="hashes")
-
+   files = relationship("File", back_populates="hashes")
 
 class HashFunction(Base):
    __tablename__ = 'HASH_FUNCTION'
