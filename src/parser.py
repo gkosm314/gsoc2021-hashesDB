@@ -132,7 +132,7 @@ class TerminalParser(ParserTemplate):
 		
 		##Terminal-only subcommands
 
-		self.parser_export.add_argument('-d', '--database', '--db', required = True, metavar = 'EXPORT_DATABASE_PATH', action = "store", help = "path to the new hashesdb database (.db file)")
+		self.parser_export.add_argument('-d', '--database', '--db', required = True, metavar = 'EXPORT_DATABASE_PATH', action = "store", help = "path to the hashesdb database (.db file)")
 		self.parser_scan.add_argument('-d', '--database', '--db', required = True, metavar = "DATABASE_PATH", action = "store", help = "path to a hashesdb database (.db file)")
 		self.parser_search.add_argument('-d', '--database', '--db', required = True, metavar = "DATABASE_PATH", action = "store", help = "path to a hashesdb database (.db file)")
 		self.parser_sql.add_argument('-d', '--database', '--db', required = True, metavar = "DATABASE_PATH", action = "store", help = "path to a hashesdb database (.db file)")
