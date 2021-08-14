@@ -287,7 +287,7 @@ class App:
 		-----------
 		export_file_path_param - string
 			Path to the folder where the table will be exported
-
+      
 		export_file_format_param - string
 			File format in which the tables will be exported
 			Supported file formats: TXT, CSV, TSV, JSON, YAML, XML
