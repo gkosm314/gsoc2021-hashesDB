@@ -462,8 +462,8 @@ class App:
 		hash_function_parameter: string
 			The name of the hash function whose availability we want to check 
 		"""		
-
-		self.used_database.hash_is_available(hash_function_parameter)
+		
+    self.used_database.hash_is_available(hash_function_parameter)
 
 	def compare(self, fuzzy_func, ids_to_compare):
 		"""
