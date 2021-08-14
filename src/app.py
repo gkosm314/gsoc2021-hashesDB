@@ -39,7 +39,8 @@ class App:
 			db_absolute_path = abspath(used_database_path_param)
 			try:
 				#If a specific database-to-use is set, try to use it
-				self.use(db_absolute_path)
+				#Set called_by_init parameter to True => the database will not be created if it does not already exist
+				self.use(db_absolute_path, True)
 			except Exception as e:
 				#If you do not succeeded in using a database, then set used_database to NoDb.
 				self.used_database = NoDb()
@@ -128,7 +129,7 @@ class App:
 		db_absolute_path = abspath(path_param)
 		return create_create(db_absolute_path, overwrite_flag)
 
-	def use(self, path_param):
+	def use(self, path_param, called_by_init = False):
 		"""
 		Description
 		-----------
@@ -143,6 +144,13 @@ class App:
 		path_param: string
 			A path(relative or absolute) that specifies where the database we intend to use is located. This has to be a path to a .db file.
 		
+		called_by_init: boolean, optional
+			Default: False
+			Note: This paramater is supposed to be set to True only if this method is called from the class initializer
+
+			When set to True, the 'use' method will try to create the database if it does not already exist.
+			Otherwise, it will print an error message.
+
 		Results
 		-----------
 		If we use a database when the function ends, self.used_database is a Db() object which gives us an interface to work with the database.
@@ -155,11 +163,16 @@ class App:
 			print("Another database is currently used. You must stop using it before choosing another database to use.")
 			print("You can stop using the database you are currently  with the 'unuse' command. You can also find out which database you currently use with the 'status' command.")
 		else:
-			#If the database you want to use does not exist, create it
+			#If the database you want to use does not exist
 			if not isfile(db_absolute_path):
-				#self.create returns true if the database was created successfully
-				print(f"No such database exists. Creating a hashesDB database at {db_absolute_path}...")
-				database_exists = self.create(db_absolute_path)
+				#If the use method was NOT called by the database initializer, then try to create the database.
+				#Otherwise print an error message, in order to avoid creating a database during the execution of an irrelevant command (e.g. search, sql etc)
+				if not called_by_init:
+					print(f"No such database exists. Creating a hashesDB database at {db_absolute_path}...")
+					database_exists = self.create(db_absolute_path)
+				else:
+					print(f"Database {db_absolute_path} does not exist.")
+					database_exists = False
 			#If the database you want to use exists, make sure it is a hashesDB database
 			elif is_hashesdb_database(db_absolute_path):
 				database_exists = True
@@ -220,7 +233,7 @@ class App:
 
 		if not database_is_used(self.used_database):
 			#If there is no database currently used then inform the user
-			print("No database is currently active. You can choose a database to manage with the 'use database_path' command.\n")
+			print("No database is currently active. You can choose a database to manage with the 'use -d DATABASE_PATH' command.\n")
 		else:
 			#If there is a database currently used, check if there are unsaved changes waiting to be commited
 			print(f"Database currently used: {self.used_database.get_database_path()}\n")
@@ -247,9 +260,29 @@ class App:
 		#import command implementation here...
 		pass
 
-	def export_db(self, export_database_path_param, export_file_path_param, export_file_format_param, overwrite_flag = False):
-		#export command implementation here...
-		pass
+	def export_db(self, export_file_path_param, export_file_format_param, overwrite_flag = False):
+		"""
+		Description
+		-----------
+		Implementetion of the 'export' command.
+		If a database is used and it has unsaved changes then it saves them. Otherwise it prints a warning message.
+		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object.
+
+		Paramaters
+		-----------
+		export_file_path_param - string
+			Path to the folder where the table will be exported
+
+		export_file_format_param - string
+			File format in which the tables will be exported
+			Supported file formats: TXT, CSV, TSV, JSON, YAML, XML
+
+		overwrite_flag - boolean, optional
+			In case a .db file exists at the given path, then if overwrite_flag = True the file will be overwritten.
+			Otherwise an error message will be printed.
+		"""
+		
+		self.used_database.export(export_file_path_param, export_file_format_param, overwrite_flag)
 
 	def save(self):
 		"""
@@ -291,21 +324,37 @@ class App:
 
 		self.used_database.dbinfo()
 
-
-	def hash_is_available(self, hash_function_parameter):
+	def sql_query(self, sql_query_string_parameter, output_path_parameter = sys.stdout, autocommit_parameter = False):
 		"""
 		Description
 		-----------
-		Checks if the given hash function is included in the HASH_FUNCTION table.
-		If there in no available hash function with this name, then it prints alternatives with similar name.
-
+		Implementetion of the 'sql' command.
+		If a database is used then it prints the hash functions available in the specified database. Otherwise it prints a warning message.
+		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object.
+		
 		Parameters
 		-----------
-		hash_function_parameter: string
-			The name of the hash function whose availability we want to check 
-		"""		
+		sql_query_string_parameter: string, optional
+			This is a SQL query encapsulated inside double quotes (For example: "SELECT...").
+			The double quotes are included in the string.		
 
-		self.used_database.hash_is_available(hash_function_parameter)
+		output_path_parameter: string
+			Default: sys.stdout
+			This is a path to a file, where the output will be printed/saved.
+			Supported file formats: TXT, CSV, TSV, JSON, YAML, XML
+
+		autocommit_parameter: boolean, optional
+			Default: False
+			In case this flag is set to True, the changes will be commited to the before the function ends.
+			The main intention of this flag is to make sure the changes made by 'DELETE' SQL queries are saved when the sql subcommand is executed from the terminal.
+
+			IMPORTANT NOTE: this flag is supposed to be set to True only when this method is called in order to execute a standalone command.
+			If you set this parameter ro True when you execute a sql command from the REPL, it is possible that changes made before the execution
+			of the SQL query will be commited too.
+
+		"""
+
+		self.used_database.sql_query(sql_query_string_parameter, output_path_parameter, autocommit_parameter)
 
 	def hash_functions(self, details_flag = False):
 		"""
@@ -324,3 +373,18 @@ class App:
 		"""
 
 		self.used_database.hash_functions(details_flag)
+	
+	def hash_is_available(self, hash_function_parameter):
+		"""
+		Description
+		-----------
+		Checks if the given hash function is included in the HASH_FUNCTION table.
+		If there in no available hash function with this name, then it prints alternatives with similar name.
+
+		Parameters
+		-----------
+		hash_function_parameter: string
+			The name of the hash function whose availability we want to check 
+		"""		
+
+		self.used_database.hash_is_available(hash_function_parameter)
