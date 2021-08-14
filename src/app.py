@@ -288,6 +288,20 @@ class App:
 		export_file_path_param - string
 			Path to the folder where the table will be exported
 
+
+	def export_db(self, export_file_path_param, export_file_format_param, overwrite_flag = False):
+		"""
+		Description
+		-----------
+		Implementetion of the 'export' command.
+		If a database is used and it has unsaved changes then it saves them. Otherwise it prints a warning message.
+		If we use a database when the function ends, self.used_database is a Db() object. Otherwise it is a NoDb() object.
+
+		Paramaters
+		-----------
+		export_file_path_param - string
+			Path to the folder where the table will be exported
+
 		export_file_format_param - string
 			File format in which the tables will be exported
 			Supported file formats: TXT, CSV, TSV, JSON, YAML, XML
