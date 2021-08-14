@@ -53,7 +53,6 @@ class ParserTemplate:
 		self.parser_scan.add_argument('-t', '--targets', nargs='+', action = "store", metavar = "TARGET", help = "targets for which the hash value will be calculated")
 		self.parser_scan.add_argument('-gh','--github', nargs='+', action = "store", metavar = "GITHUB_TARGET", help = "github repos for which the hash values will be calculated")
 		self.parser_scan.add_argument('-gl','--gitlab', nargs='+', action = "store", metavar = "GITLAB_TARGET", help = "gitlab repos for which the hash values will be calculated")
-		self.parser_scan.add_argument('-bb','--bitbucket', nargs='+', action = "store", metavar = "BITBUCKET_TARGET", help = "bitbuckets for which the hash values will be calculated")
 		self.parser_scan.add_argument('-c', '--calculate', nargs='+', action = "store", metavar = "HASH_FUNCTION_NAME", help = "hash functions which will be used for the hash value calculation")
 		self.parser_scan.add_argument('-dw', '--download-location', action = "store", metavar = "DOWNLOAD_LOCATION", default = getcwd(), help = "path to location where remote targets will be downloaded to. default: current working directory")
 		self.parser_scan.add_argument('-j', '--jobs', action = "store", default = 1, type = int, metavar = "THREADS_NUMBER", help = "number of threads to be used. default: 1")
