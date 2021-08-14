@@ -56,7 +56,7 @@ class ParserTemplate:
 		self.parser_scan.add_argument('-c', '--calculate', nargs='+', action = "store", metavar = "HASH_FUNCTION_NAME", help = "hash functions which will be used for the hash value calculation")
 		self.parser_scan.add_argument('-dw', '--download-location', action = "store", metavar = "DOWNLOAD_LOCATION", default = getcwd(), help = "path to location where remote targets will be downloaded to. default: current working directory")
 		self.parser_scan.add_argument('-j', '--jobs', action = "store", default = 1, type = int, metavar = "THREADS_NUMBER", help = "number of threads to be used. default: 1")
-		self.parser_scan.add_argument('-r', '--recursive', action = "store_true", help = "allows recursive comparsion with the contents of directories")
+		self.parser_scan.add_argument('-r', '--recursive', action = "store_true", help = "allows recursive scanning of the contents of directories")
 
 		#search subcommand parser
 		search_help_msg = "search for files based on hash value and filename. output results in specified format"
