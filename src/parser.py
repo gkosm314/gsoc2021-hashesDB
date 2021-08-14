@@ -33,7 +33,7 @@ class ParserTemplate:
 		self.parser_import = self.subparsers.add_parser('import', help= import_help_msg, description = import_help_msg)
 		self.parser_import.add_argument('-f', '--folder', metavar = 'IMPORT_FOLDER_PATH', action = "store", help = "path to the folder that will be imported")
 		self.parser_import.add_argument('-d', '--database', '--db', required = True, metavar = 'IMPORT_DATABASE_PATH', action = "store", help = "path to the new hashesdb database (.db file)")
-		self.parser_import.add_argument('-e','--extension', metavar = 'IMPORT_FILE_FORMAT', action = "store", choices=['csv','tsv','json','yaml','xml'], help = "Supported file formats: TXT, CSV, TSV, JSON, YAML, XML")
+		self.parser_import.add_argument('-e','--extension', metavar = 'IMPORT_FILE_FORMAT', action = "store", choices=['csv','tsv','json','yaml','xml'], help = "Supported file formats: CSV, TSV, JSON, YAML, XML")
 
 		#export subcommand parser
 		export_help_msg = "create a new file which contains data saved in a hashesdb database"
