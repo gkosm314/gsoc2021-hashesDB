@@ -29,7 +29,7 @@ class ParserTemplate:
 		self.parser_create.add_argument('--overwrite', action='store_true', help = "flag: allows the tool to overwrite other databases when it creates a new hashesdb database")			
 
 		#import subcommand parser
-		import_help_msg = "create a new hashesdb database and import data saved in a file"
+		import_help_msg = "populates hashesdb database with data imported from a folder"
 		self.parser_import = self.subparsers.add_parser('import', help= import_help_msg, description = import_help_msg)
 		self.parser_import.add_argument('-f', '--folder', metavar = 'IMPORT_FOLDER_PATH', action = "store", help = "path to the folder that will be imported")
 		self.parser_import.add_argument('-d', '--database', '--db', required = True, metavar = 'IMPORT_DATABASE_PATH', action = "store", help = "path to the new hashesdb database (.db file)")
