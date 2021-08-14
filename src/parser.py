@@ -23,7 +23,7 @@ class ParserTemplate:
 		self.parser_schema = self.subparsers.add_parser('schema', help = schema_help_msg, description = schema_help_msg)	
 
 		#create subcommand parser
-		create_help_msg = "create a hashesdb database at a gien path"
+		create_help_msg = "create a hashesdb database at a given path"
 		self.parser_create = self.subparsers.add_parser('create', help= create_help_msg, description = create_help_msg)
 		self.parser_create.add_argument('-d', '--database', '--db', required = True, metavar = "DATABASE_PATH", action = "store", help = "path to the new hashesdb database (.db file)")
 		self.parser_create.add_argument('--overwrite', action='store_true', help = "flag: allows the tool to overwrite other databases when it creates a new hashesdb database")			
