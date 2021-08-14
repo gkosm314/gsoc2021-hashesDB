@@ -1,5 +1,5 @@
 from create import is_hashesdb_database, is_valid_db_path, create as create_create
-from os.path import abspath,isfile
+from os.path import abspath, isfile, dirname
 from os import getcwd
 from sys import exit as sys_exit
 import sys
@@ -250,10 +250,11 @@ class App:
 
 	def schema(self):
 		try:
-			schema_documentation = open('../docs/schema_documentation.txt','r')
+			schema_documentation = open(dirname(__file__) + '/../docs/schema_documentation.txt','r')
 			print(schema_documentation.read())
-		except OSError:
+		except OSError as e:
 			print("Error: Could not open docs/schema_documentation.txt")
+			print(e)
 
 	def import_db(self, import_file_path_param, import_file_format_param):
 		"""
