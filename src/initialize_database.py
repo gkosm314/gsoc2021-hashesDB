@@ -25,9 +25,27 @@ def initialize_db(engine, database_path_parameter):
 	Session = sessionmaker(bind = engine)
 	session = Session()
 
-	initialize_db_information(session, database_path_parameter)
-	initialize_scan_code(session)
-	initialize_hash_function(session)
+	initialize_db_from_session(session, database_path_parameter)
+
+def initialize_db_from_session(session_param, database_path_parameter):
+	"""
+	Description
+	-----------
+	Initializes an empty hashesDB database.
+	After execution, the DB_INFORMATION, SCAN_CODE and HASH_FUNCTION tables will be initialized
+
+	Parameters
+	-----------
+
+	session_param - SQLAlchemy session object
+
+	database_path_parameter: string
+			A path(relative or absolute) that specifies where the new database will be located. This has to be a path to a .db file.
+			This parameter is only used to extract the name of the database, which is always the same as the name of the .db file."""
+
+	initialize_db_information(session_param, database_path_parameter)
+	initialize_scan_code(session_param)
+	initialize_hash_function(session_param)
 
 def initialize_db_information(session, database_path_parameter):
 	"""

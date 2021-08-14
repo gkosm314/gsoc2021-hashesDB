@@ -6,7 +6,7 @@ from os.path import abspath, isdir, join, split
 from difflib import SequenceMatcher
 import sys
 import sqlparse
-from initialize_database import initialize_db_information
+from initialize_database import initialize_db_from_session
 from table_classes import *
 #from scan import scanner
 from shutil import rmtree
@@ -48,6 +48,7 @@ class Db:
 
 		#Try begin a session
 		try:
+			self.insp = inspect(engine)
 			self.db_session = Session()
 			self.db_session.begin()
 		except Exception as e:
@@ -124,27 +125,25 @@ class Db:
 				#If rollback was successful, then there are no unsaved changes now.
 				self.unsaved_changes_flag = False
 
-	def clear(self):
+	def reset(self):
 		"""
 		Description
 		-----------
-		Clear the database from all its data, except the data that were inserted during the initialisation of the database."""
+		Reset the database from all its data, except the data that were inserted during the initialisation of the database."""
 
-		print("Clearing the database...")
+		print("Reseting the database...")
 		try:
-			self.db_session.query(Scan).delete()
-			self.db_session.query(Origin).delete()
-			self.db_session.query(File).delete()
-			self.db_session.query(Hash).delete()
-			self.db_session.query(SwhInfo).delete()
-			self.db_session.query(DbInformation).delete()
-			initialize_db_information(self.db_session, self.get_database_path())
+			for class_name in Base.__subclasses__():
+				self.db_session.query(class_name).delete()
 		except Exception as e:
 			self.db_session.rollback()
-			print("Clearing the database failed...")		
+			print("Reseting the database failed...")	
+			print(e)	
 		else:
-			print("Cleared the database successfully.")
+			print("Reseted the database successfully.")
 			self.db_session.commit()
+
+		initialize_db_from_session(self.db_session, self.get_database_path())
 
 	def dbinfo(self):
 		"""
@@ -370,7 +369,7 @@ class NoDb:
 
 		self.display_unused_warning()
 
-	def clear(self):
+	def reset(self):
 		"""
 		Description
 		-----------
