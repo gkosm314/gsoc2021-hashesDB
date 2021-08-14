@@ -4,8 +4,6 @@ import json
 import yaml
 import xml.etree.ElementTree as ET
 
-#TODO: write docstrings
-
 def populate_table(session_parameter, file_path_parameter, table_name_parameter, extension_parameter):
 	"""
 	Description
