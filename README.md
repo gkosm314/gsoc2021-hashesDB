@@ -5,5 +5,8 @@ hashesDB will be a command line tool that will help users manage a database of h
 ## My Progression
 I regularly add logs that briefly describe the project's progression in [this](https://github.com/gkosm314/gsoc2021-hashesDB/wiki/Project-Journal) page.
 
+## Documentation
+You can find extensive user documentation [here](https://github.com/eellak/gsoc2021-hashesDB/wiki/hashesdb-Documentation).
+
 ## Final presentation
 I wrote a blog post in which I present what I worked on during the coding period of Google Summer of Code 2021. You can find it [here](https://github.com/eellak/gsoc2021-hashesDB/wiki/hashesdb-presentation).
