@@ -14,6 +14,7 @@ class TestImportingFunction(unittest.TestCase):
 
 	def __init__(self, *args, **kwargs):
 		super(TestImportingFunction, self).__init__(*args, **kwargs)
+		self.query_to_execute = text("SELECT * FROM HASH WHERE hash_id = 90 OR hash_id = 91")
 
 		#Create engine
 		engine_url = "sqlite:///mytest.db"
@@ -53,40 +54,52 @@ class TestImportingFunction(unittest.TestCase):
 				pass
 
 	def helper_output_testing(self, extension_parameter):
-		results_to_be_outputed = self.session.execute("SELECT * FROM HASH")
-		output_file_name = 'TEST_HASH.' + extension_parameter
-		correct_file_name = 'HASH.' + extension_parameter
+		results_to_be_outputed = self.session.execute(self.query_to_execute)
+		output_file_name = 'TEST_OUTPUT.' + extension_parameter
+		correct_file_name = 'OUTPUT.' + extension_parameter
 		self.assertTrue(output(results_to_be_outputed, output_file_name))
 		self.files_produced.append(output_file_name)
 		self.assertTrue(cmp(output_file_name, correct_file_name,shallow = False))
 
-	def test_populate_stdout(self):
-		results_to_be_outputed = self.session.execute("SELECT * FROM HASH")
+	def test_output_stdout(self):
+		results_to_be_outputed = self.session.execute(self.query_to_execute)
 		self.assertTrue(output(results_to_be_outputed, sys.stdout))
-		with open('HASH.txt','r') as f:
+		with open('OUTPUT.txt','r') as f:
 			self.assertEqual(self.io_stream.getvalue(), f.read())
 
-	def test_populate_txt(self):
+	def test_output_txt(self):
 		self.helper_output_testing('txt')
 
-	def test_populate_csv(self):
+	def test_output_csv(self):
 		self.helper_output_testing('csv')
 
-	def test_populate_tsv(self):
+	def test_output_tsv(self):
 		self.helper_output_testing('tsv')		
 
-	def test_populate_json(self):
+	def test_output_json(self):
 		self.helper_output_testing('json')		
 
-	def test_populate_yaml(self):
+	def test_output_yaml(self):
 		self.helper_output_testing('yaml')		
 
-	def test_populate_xml(self):
+	def test_output_xml(self):
 		self.helper_output_testing('xml')						
 
-	def test_populate_invalid_exception(self):
-		with self.assertRaises(Exception):
-			populate_table(self.session, 'HASH.pdf', 'HASH', '.pdf')		
+	def test_output_invalid_extension(self):
+		results_to_be_outputed = self.session.execute(self.query_to_execute)
+		self.assertFalse(output(results_to_be_outputed, 'TEST_OUTPUT.pdf'))
+	
+	def test_output_dir_does_not_exist(self):
+		results_to_be_outputed = self.session.execute(self.query_to_execute)
+		self.assertFalse(output(results_to_be_outputed, 'random_directory/myfile.txt'))	
+
+	def test_results_to_dict(self):
+		results_to_be_outputed = self.session.execute(self.query_to_execute)
+		self.assertEqual(results_to_dict(results_to_be_outputed),[{'hash_id': 90, 'hash_value': 'swh:1:cnt:a161b32d5e4bc17e8061a5c48a5483cd94bc7d50', 'hash_function_name': 'swhid', 'file_id': 20}, {'hash_id': 91, 'hash_value': '54aac885d92e7e1b4a14c94d07a541a99975186d', 'hash_function_name': 'sha1', 'file_id': 20}])
+	
+	def test_results_to_dict_empty(self):
+		results_to_be_outputed = self.session.execute(text("SELECT * FROM HASH WHERE hash_id = 200"))
+		self.assertEqual(results_to_dict(results_to_be_outputed),[])
 
 if __name__ == '__main__':
 	unittest.main()
