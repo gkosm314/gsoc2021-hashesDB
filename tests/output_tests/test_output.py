@@ -13,7 +13,7 @@ class TestOutputFunction(unittest.TestCase):
 	files_produced = []
 
 	def __init__(self, *args, **kwargs):
-		super(TestImportingFunction, self).__init__(*args, **kwargs)
+		super(TestOutputFunction, self).__init__(*args, **kwargs)
 		self.query_to_execute = text("SELECT * FROM HASH WHERE hash_id = 90 OR hash_id = 91")
 
 		#Create engine
