@@ -8,7 +8,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from filecmp import cmp
 
-class TestImportingFunction(unittest.TestCase):
+class TestOutputFunction(unittest.TestCase):
 
 	files_produced = []
 
