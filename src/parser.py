@@ -189,7 +189,7 @@ class TerminalParser(ParserTemplate):
 		repl.read()
 
 	def subcommand_scan(self,args):
-		scan_targets = [args.targets, args.github, args.gitlab, args.bitbucket]
+		scan_targets = [args.targets, args.github, args.gitlab]
 		App(args.database).scan(scan_targets, args.calculate, args.download_location, args.jobs, True, args.recursive)
 
 	def subcommand_search(self,args):
