@@ -127,7 +127,7 @@ class RemoteScanner:
 					token = token[:-1] #delete \n from the token by hand
 		#Otherwise, prompt the user enter the token
 		else:
-			print("You can still access public repositories without using authentication. Just leave the following prompt empty!")
+			print(f"If you want to avoid entering your {platform} personal access token everytime, you can save it inside a file named '{token_txt}' inside your working directory.")
 			token = input(f"{platform} {token_term}:")
 
 		self.token = token
