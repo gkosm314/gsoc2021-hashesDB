@@ -22,17 +22,19 @@ class TestCreateFunction(unittest.TestCase):
 		sys.stdout = sys.__stdout__
 		self.io_stream.close()
 
-	# def test_create_relational(self):
-	# 	pass
+	def test_create_relational(self):
+		self.assertTrue(create('new_db.db'))
+		remove('new_db.db')
 
-	# def test_create_absolute(self):
-	# 	pass
+	def test_create_absolute(self):
+		self.assertTrue(create(abspath('new_db.db')))
+		remove(abspath('new_db.db'))
 
-	def_test_create_without_overwrite(self):
-		pass
+	def test_create_without_overwrite(self):
+		self.assertFalse(create('mytest.db'))
 
-	def_test_create_with_overwrite(self):
-		pass
+	def test_create_with_overwrite(self):
+		self.assertTrue(create('mytest.db', overwrite_flag = True))
 
 	def test_create_no_extension(self):
 		self.assertFalse(create('mytest'))
