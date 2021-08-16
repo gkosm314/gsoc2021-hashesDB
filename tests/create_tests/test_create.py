@@ -6,6 +6,9 @@ import unittest
 from os.path import abspath, exists
 from os import remove
 
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
+
 
 class TestCreateFunction(unittest.TestCase):
 
@@ -44,7 +47,6 @@ class TestCreateFunction(unittest.TestCase):
 
 	def test_create_bad_directory(self):
 		self.assertFalse(create('test_directory/test_directory2/mytest.pdf'))		
-
 
 class TestIsValidDbFunction(unittest.TestCase):
 
@@ -168,6 +170,63 @@ class TestCreateDatabaseFunction(unittest.TestCase):
 		#Recreate file
 		with open("hello_world.txt", "w") as f:
 			f.write("hello world!!!")	
+
+class TestIsHashesDbDatabaseFunction(unittest.TestCase):
+
+	def __init__(self, *args, **kwargs):
+		super(TestIsHashesDbDatabaseFunction, self).__init__(*args, **kwargs)
+
+		#Create engine
+		engine_url = "sqlite:///mytest.db"
+		engine = create_engine(engine_url, echo = False)   
+
+		#Configure session
+		Session = sessionmaker()
+		Session.configure(bind=engine)
+		self.session = Session()		
+
+	def setUp(self):
+
+		#Suppress stdout:
+		self.io_stream = io.StringIO()
+		sys.stdout = self.io_stream 
+
+		#Begin session
+		self.session.begin()
+
+	def tearDown(self):
+
+		#Undo the changes lose session
+		self.session.rollback()
+		self.session.close()
+
+		#Release stdout
+		sys.stdout = sys.__stdout__
+		self.io_stream.close()
+
+	def test_is_hashesdb_database_correct(self):
+		self.assertTrue(is_hashesdb_database('mytest.db'), msg = "This unit test is not independent from the database schema.")		
+
+	def test_is_hashesdb_database_extra_column(self):
+		self.assertFalse(is_hashesdb_database('extra_column_test.db'), msg = "This unit test is not independent from the database schema.")	
+
+	def test_is_hashesdb_database_rename_column(self):
+		self.assertFalse(is_hashesdb_database('rename_column_test.db'), msg = "This unit test is not independent from the database schema.")			
+
+	def test_is_hashesdb_database_change_type_of_column(self):
+		self.assertFalse(is_hashesdb_database('different_type_column_test.db'), msg = "This unit test is not independent from the database schema.")	
+
+	def test_is_hashesdb_database_no_extension(self):
+		self.assertFalse(is_hashesdb_database('mytest'))
+
+	def test_is_hashesdb_database_bad_extension(self):
+		self.assertFalse(is_hashesdb_database('mytest.pdf'))												
+
+	def test_is_hashesdb_database_bad_directory(self):
+		self.assertFalse(is_hashesdb_database('test_directory/test_directory2/mytest.pdf'))		
+
+	def test_is_hashesdb_database_file_does_not_exist(self):
+		self.assertFalse(is_hashesdb_database('mytest2.db'))		
 
 
 if __name__ == '__main__':
