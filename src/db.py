@@ -811,6 +811,7 @@ class Db:
 			"Use the 'hash-functions' command to learn more about the available hash functions "
 			"or the 'hash-is-available' command to investigate if a particular command is available.\n")
 			print(invalid_hash_msg)
+			return False
 		else:
 			#If the hash function is NOT a fuzzy hash function, print an error message
 			try:
