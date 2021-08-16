@@ -130,3 +130,4 @@ dmypy.json
 
 #Personal folder
 real_src/
+tests/tests-todo-list.txt
