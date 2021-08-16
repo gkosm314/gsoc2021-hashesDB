@@ -71,7 +71,7 @@ def populate_csv(session_parameter, file_path_parameter, table_name_parameter):
 		csv_reader = csv.reader(f)
 		next(csv_reader) #Skip first line
 		for row in csv_reader:
-			insert_values(session_parameter, table_name_parameter, tuple(row))
+			insert_values(session_parameter, table_name_parameter, str(tuple(row)))
 
 def populate_tsv(session_parameter, file_path_parameter, table_name_parameter):
 	"""
@@ -95,7 +95,7 @@ def populate_tsv(session_parameter, file_path_parameter, table_name_parameter):
 		csv_reader = csv.reader(f, dialect = 'excel-tab')
 		next(csv_reader) #Skip first line
 		for row in csv_reader:
-			insert_values(session_parameter, table_name_parameter, tuple(row))
+			insert_values(session_parameter, table_name_parameter, str(tuple(row)))
 
 def populate_json(session_parameter, file_path_parameter, table_name_parameter):
 	"""
