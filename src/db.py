@@ -972,7 +972,7 @@ class NoDb:
 
 		self.display_unused_warning()
 
-	def sql_query(self, sql_query_string_parameter, output_path_parameter = sys.stdout):
+	def sql_query(self, sql_query_string_parameter, output_path_parameter = sys.stdout, autocommit_flag = False):
 		"""
 		Description
 		-----------
