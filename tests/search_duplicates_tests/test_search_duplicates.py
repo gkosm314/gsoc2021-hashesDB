@@ -47,7 +47,7 @@ class TestSearchDuplicatesFunction(unittest.TestCase):
 		self.helper_search_duplicates_testing(['test_directory/LICENSE'], 'single_file.txt')
 
 	def test_search_duplicates_single_file_absolute(self):
-		self.helper_search_duplicates_testing([abspath('test_directory/LICENSE')], 'single_file.txt')
+		self.helper_search_duplicates_testing([abspath('test_directory/LICENSE')], 'single_file_abs.txt')
 
 	def test_search_duplicates_multiple_files(self):
 		self.helper_search_duplicates_testing(['test_directory/LICENSE', 'test_directory/README.md'], 'multiple_files.txt')		
