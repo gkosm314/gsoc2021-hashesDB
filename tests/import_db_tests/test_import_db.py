@@ -19,6 +19,8 @@ class TestImportFunction(unittest.TestCase):
 		self.db = Db('mytest.db')
 
 	def tearDown(self):
+		del self.db
+		
 		#Release stdout
 		sys.stdout = sys.__stdout__
 		self.io_stream.close()
