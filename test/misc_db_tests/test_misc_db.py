@@ -34,8 +34,27 @@ class TestMiscDbFunction(unittest.TestCase):
 		self.assertTrue(database_is_used(self.db))	
 				
 	def test_database_is_used_no_db(self):
-		self.assertFalse(database_is_used(self.nodb))	
+		self.assertFalse(database_is_used(self.nodb))
 
+	def test_save_has_unsaved_changes(self):
+		self.db.unsaved_changes_flag = True
+		self.db.save()
+		self.assertFalse(self.db.has_unsaved_changes())	
+
+	def test_save_no_unsaved_changes(self):
+		self.db.unsaved_changes_flag = False	
+		self.db.save()
+		self.assertFalse(self.db.has_unsaved_changes())	
+
+	def test_rollback_has_unsaved_changes(self):
+		self.db.unsaved_changes_flag = True
+		self.db.rollback()
+		self.assertFalse(self.db.has_unsaved_changes())	
+
+	def test_rollback_no_unsaved_changes(self):
+		self.db.unsaved_changes_flag = False
+		self.db.rollback()
+		self.assertFalse(self.db.has_unsaved_changes())	
 
 def main():
 	unittest.main()
