@@ -29,5 +29,8 @@ class TestHashFunctionsFunction(unittest.TestCase):
 	def test_compare_not_fuzzy_func(self):
 		self.assertFalse(self.db.compare('md5',[]))						
 
-if __name__ == '__main__':
+def main():
 	unittest.main()
+
+if __name__ == '__main__':
+	main()

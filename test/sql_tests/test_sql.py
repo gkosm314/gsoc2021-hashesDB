@@ -98,5 +98,8 @@ class TestSqlFunction(unittest.TestCase):
 		self.assertFalse(self.db.sql_query(sql_query_string, 'whatever.txt', False))
 	
 
-if __name__ == '__main__':
+def main():
 	unittest.main()
+
+if __name__ == '__main__':
+	main()

@@ -60,5 +60,9 @@ class TestSearchDuplicatesFunction(unittest.TestCase):
 		self.db.search_duplicates(['test_directory'], 'directory.txt')
 		self.assertFalse(exists('directory.txt'))	
 
-if __name__ == '__main__':
+
+def main():
 	unittest.main()
+
+if __name__ == '__main__':
+	main()

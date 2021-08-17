@@ -40,5 +40,8 @@ class TestImportFunction(unittest.TestCase):
 	def test_import_db_wrong_extension(self):
 		self.assertFalse(self.db.import_db('good_directory','json'))
 
-if __name__ == '__main__':
+def main():
 	unittest.main()
+
+if __name__ == '__main__':
+	main()

@@ -96,5 +96,9 @@ class TestExportFunction(unittest.TestCase):
 	def test_export_xml(self):
 		self.helper_export_testing('xml')	
 
-if __name__ == '__main__':
+
+def main():
 	unittest.main()
+
+if __name__ == '__main__':
+	main()

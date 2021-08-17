@@ -101,5 +101,9 @@ class TestOutputFunction(unittest.TestCase):
 		results_to_be_outputed = self.session.execute(text("SELECT * FROM HASH WHERE hash_id = 200"))
 		self.assertEqual(results_to_dict(results_to_be_outputed),[])
 
-if __name__ == '__main__':
+
+def main():
 	unittest.main()
+
+if __name__ == '__main__':
+	main()

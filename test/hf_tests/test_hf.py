@@ -49,5 +49,9 @@ class TestHashFunctionsFunction(unittest.TestCase):
 		returned_list.sort()
 		self.assertEqual(returned_list, ['md5', 'sha1', 'ssdeep', 'tlsh'])							
 
-if __name__ == '__main__':
+
+def main():
 	unittest.main()
+
+if __name__ == '__main__':
+	main()

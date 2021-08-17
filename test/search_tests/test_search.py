@@ -60,5 +60,8 @@ class TestSearchFunction(unittest.TestCase):
 	def test_search_no_criteria(self):
 		self.helper_search_testing([], [], 'no_criteria.txt')
 
-if __name__ == '__main__':
+def main():
 	unittest.main()
+
+if __name__ == '__main__':
+	main()

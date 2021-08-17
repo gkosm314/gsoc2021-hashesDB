@@ -229,5 +229,8 @@ class TestIsHashesDbDatabaseFunction(unittest.TestCase):
 		self.assertFalse(is_hashesdb_database('mytest2.db'))		
 
 
-if __name__ == '__main__':
+def main():
 	unittest.main()
+
+if __name__ == '__main__':
+	main()

@@ -101,5 +101,9 @@ class TestImportingFunction(unittest.TestCase):
 		dict_given_as_input = {"a": 5, "b": None, "c": "hello world", "d": 3.14}
 		self.assertEqual(dicttotuple(dict_given_as_input),"(5, NULL, 'hello world', 3.14)")												
 
-if __name__ == '__main__':
+
+def main():
 	unittest.main()
+
+if __name__ == '__main__':
+	main()

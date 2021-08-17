@@ -36,5 +36,9 @@ class TestMiscDbFunction(unittest.TestCase):
 	def test_database_is_used_no_db(self):
 		self.assertFalse(database_is_used(self.nodb))	
 
-if __name__ == '__main__':
+
+def main():
 	unittest.main()
+
+if __name__ == '__main__':
+	main()
