@@ -1,0 +1,240 @@
+- id: 1
+  scan_id: 1
+  file_name: .gitignore
+  file_extension: ''
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB/main/.gitignore
+  file_size: 1827
+  date_created: '2021-08-16 22:55:16.932975'
+  date_modified: '2021-08-16 22:55:16.932975'
+  date_retrieved: '2021-08-16 22:55:16.937902'
+  swh_known: 0
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/.gitignore
+- id: 2
+  scan_id: 1
+  file_name: LICENSE
+  file_extension: ''
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB/main/LICENSE
+  file_size: 35149
+  date_created: '2021-08-16 22:55:17.276986'
+  date_modified: '2021-08-16 22:55:17.276986'
+  date_retrieved: '2021-08-16 22:55:17.283581'
+  swh_known: 1
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/LICENSE
+- id: 3
+  scan_id: 1
+  file_name: README.md
+  file_extension: .md
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB/main/README.md
+  file_size: 937
+  date_created: '2021-08-16 22:55:17.524994'
+  date_modified: '2021-08-16 22:55:17.524994'
+  date_retrieved: '2021-08-16 22:55:17.530352'
+  swh_known: 0
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/README.md
+- id: 4
+  scan_id: 1
+  file_name: pyproject.toml
+  file_extension: .toml
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB/main/pyproject.toml
+  file_size: 1286
+  date_created: '2021-08-16 22:55:17.797003'
+  date_modified: '2021-08-16 22:55:17.797003'
+  date_retrieved: '2021-08-16 22:55:17.801677'
+  swh_known: 0
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/pyproject.toml
+- id: 5
+  scan_id: 1
+  file_name: requirements.txt
+  file_extension: .txt
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB/main/requirements.txt
+  file_size: 651
+  date_created: '2021-08-16 22:55:18.025011'
+  date_modified: '2021-08-16 22:55:18.025011'
+  date_retrieved: '2021-08-16 22:55:18.030873'
+  swh_known: 0
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/requirements.txt
+- id: 6
+  scan_id: 2
+  file_name: .gitignore
+  file_extension: ''
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB(1)/main/.gitignore
+  file_size: 1827
+  date_created: '2021-08-16 22:55:41.485785'
+  date_modified: '2021-08-16 22:55:41.485785'
+  date_retrieved: '2021-08-16 22:55:41.492125'
+  swh_known: 0
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/.gitignore
+- id: 7
+  scan_id: 2
+  file_name: LICENSE
+  file_extension: ''
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB(1)/main/LICENSE
+  file_size: 35149
+  date_created: '2021-08-16 22:55:41.857797'
+  date_modified: '2021-08-16 22:55:41.857797'
+  date_retrieved: '2021-08-16 22:55:41.860740'
+  swh_known: 1
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/LICENSE
+- id: 8
+  scan_id: 2
+  file_name: README.md
+  file_extension: .md
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB(1)/main/README.md
+  file_size: 937
+  date_created: '2021-08-16 22:55:42.197808'
+  date_modified: '2021-08-16 22:55:42.197808'
+  date_retrieved: '2021-08-16 22:55:42.203480'
+  swh_known: 0
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/README.md
+- id: 9
+  scan_id: 2
+  file_name: schema_documentation.txt
+  file_extension: .txt
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB(1)/main/docs/schema_documentation.txt
+  file_size: 4048
+  date_created: '2021-08-16 22:55:42.813828'
+  date_modified: '2021-08-16 22:55:42.813828'
+  date_retrieved: '2021-08-16 22:55:42.818062'
+  swh_known: 0
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/docs/schema_documentation.txt
+- id: 10
+  scan_id: 2
+  file_name: pyproject.toml
+  file_extension: .toml
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB(1)/main/pyproject.toml
+  file_size: 1286
+  date_created: '2021-08-16 22:55:43.121839'
+  date_modified: '2021-08-16 22:55:43.121839'
+  date_retrieved: '2021-08-16 22:55:43.125098'
+  swh_known: 0
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/pyproject.toml
+- id: 11
+  scan_id: 2
+  file_name: requirements.txt
+  file_extension: .txt
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB(1)/main/requirements.txt
+  file_size: 651
+  date_created: '2021-08-16 22:55:43.425848'
+  date_modified: '2021-08-16 22:55:43.425848'
+  date_retrieved: '2021-08-16 22:55:43.432432'
+  swh_known: 0
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/requirements.txt
+- id: 12
+  scan_id: 2
+  file_name: app.py
+  file_extension: .py
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB(1)/main/src/app.py
+  file_size: 21945
+  date_created: '2021-08-16 22:55:43.941866'
+  date_modified: '2021-08-16 22:55:43.941866'
+  date_retrieved: '2021-08-16 22:55:43.945556'
+  swh_known: 0
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/src/app.py
+- id: 13
+  scan_id: 2
+  file_name: create.py
+  file_extension: .py
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB(1)/main/src/create.py
+  file_size: 7450
+  date_created: '2021-08-16 22:55:44.245876'
+  date_modified: '2021-08-16 22:55:44.245876'
+  date_retrieved: '2021-08-16 22:55:44.251922'
+  swh_known: 0
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/src/create.py
+- id: 14
+  scan_id: 2
+  file_name: db.py
+  file_extension: .py
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB(1)/main/src/db.py
+  file_size: 39166
+  date_created: '2021-08-16 22:55:44.557886'
+  date_modified: '2021-08-16 22:55:44.557886'
+  date_retrieved: '2021-08-16 22:55:44.560851'
+  swh_known: 0
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/src/db.py
+- id: 15
+  scan_id: 2
+  file_name: importing.py
+  file_extension: .py
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB(1)/main/src/importing.py
+  file_size: 7088
+  date_created: '2021-08-16 22:55:44.861896'
+  date_modified: '2021-08-16 22:55:44.861896'
+  date_retrieved: '2021-08-16 22:55:44.866660'
+  swh_known: 0
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/src/importing.py
+- id: 16
+  scan_id: 2
+  file_name: initialize_database.py
+  file_extension: .py
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB(1)/main/src/initialize_database.py
+  file_size: 5644
+  date_created: '2021-08-16 22:55:45.169906'
+  date_modified: '2021-08-16 22:55:45.169906'
+  date_retrieved: '2021-08-16 22:55:45.173337'
+  swh_known: 0
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/src/initialize_database.py
+- id: 17
+  scan_id: 2
+  file_name: output.py
+  file_extension: .py
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB(1)/main/src/output.py
+  file_size: 7901
+  date_created: '2021-08-16 22:55:45.477916'
+  date_modified: '2021-08-16 22:55:45.477916'
+  date_retrieved: '2021-08-16 22:55:45.482295'
+  swh_known: 0
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/src/output.py
+- id: 18
+  scan_id: 2
+  file_name: parser.py
+  file_extension: .py
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB(1)/main/src/parser.py
+  file_size: 20346
+  date_created: '2021-08-16 22:55:45.785927'
+  date_modified: '2021-08-16 22:55:45.785927'
+  date_retrieved: '2021-08-16 22:55:45.788688'
+  swh_known: 0
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/src/parser.py
+- id: 19
+  scan_id: 2
+  file_name: scan.py
+  file_extension: .py
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB(1)/main/src/scan.py
+  file_size: 33471
+  date_created: '2021-08-16 22:55:46.093937'
+  date_modified: '2021-08-16 22:55:46.093937'
+  date_retrieved: '2021-08-16 22:55:46.097244'
+  swh_known: 0
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/src/scan.py
+- id: 20
+  scan_id: 2
+  file_name: table_classes.py
+  file_extension: .py
+  file_path: /home/gk314/Documents/coding/gsoc2021-hashesDB/tests/importing_tests/gsoc2021-hashesDB(1)/main/src/table_classes.py
+  file_size: 2375
+  date_created: '2021-08-16 22:55:46.397947'
+  date_modified: '2021-08-16 22:55:46.397947'
+  date_retrieved: '2021-08-16 22:55:46.402960'
+  swh_known: 0
+  updated: 1
+  origin: https://raw.githubusercontent.com/eellak/gsoc2021-hashesDB/3d15b99d74a2763b04b48318741f3e69a161a48a/src/table_classes.py
