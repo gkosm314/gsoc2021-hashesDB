@@ -879,10 +879,6 @@ def compute_hashes(file_path, hashes_to_compute):
 
 	computed_hashes = []
 
-	#If no hash functions were given, do not compute anything
-	if not hashes_to_compute:
-		return computed_hashes
-	
 	#Block size (the hash calculation is done one memory block at a time, in order to be able to calculate hashes of files that exceed the size of the memory)
 	chunk_size = 4096
 
