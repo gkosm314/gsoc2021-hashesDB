@@ -764,7 +764,7 @@ class Db:
 
 			#If no sich file exists, print an error message
 			if not exists(absolute_file_path):
-				print(f"Error: No such file: {target}")
+				print(f"Error: No such file: {absolute_file_path}")
 				continue
 			#If the file is a directory, print an error message
 			elif isdir(absolute_file_path):
@@ -784,8 +784,9 @@ class Db:
 		#Remove duplicated hash values
 		hashes_to_search = list(set(hashes_of_all_files))
 
-		#Search for the hash values using the search command
-		self.search(hashes_to_search, [], output_path_parameter)
+		if hashes_to_search:
+			#Search for the hash values using the search command
+			self.search(hashes_to_search, [], output_path_parameter)
 
 	def compare(self, fuzzy_func, ids_to_compare):
 		"""
@@ -811,6 +812,7 @@ class Db:
 			"Use the 'hash-functions' command to learn more about the available hash functions "
 			"or the 'hash-is-available' command to investigate if a particular command is available.\n")
 			print(invalid_hash_msg)
+			return False
 		else:
 			#If the hash function is NOT a fuzzy hash function, print an error message
 			try:
