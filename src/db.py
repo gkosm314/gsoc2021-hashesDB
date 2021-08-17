@@ -764,7 +764,7 @@ class Db:
 
 			#If no sich file exists, print an error message
 			if not exists(absolute_file_path):
-				print(f"Error: No such file: {target}")
+				print(f"Error: No such file: {absolute_file_path}")
 				continue
 			#If the file is a directory, print an error message
 			elif isdir(absolute_file_path):
@@ -784,8 +784,9 @@ class Db:
 		#Remove duplicated hash values
 		hashes_to_search = list(set(hashes_of_all_files))
 
-		#Search for the hash values using the search command
-		self.search(hashes_to_search, [], output_path_parameter)
+		if hashes_to_search:
+			#Search for the hash values using the search command
+			self.search(hashes_to_search, [], output_path_parameter)
 
 	def compare(self, fuzzy_func, ids_to_compare):
 		"""
@@ -972,7 +973,7 @@ class NoDb:
 
 		self.display_unused_warning()
 
-	def sql_query(self, sql_query_string_parameter, output_path_parameter = sys.stdout, autocommit_flag = False):
+	def sql_query(self, sql_query_string_parameter, output_path_parameter = sys.stdout):
 		"""
 		Description
 		-----------
