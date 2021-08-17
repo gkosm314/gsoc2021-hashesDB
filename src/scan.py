@@ -12,6 +12,7 @@ import ssdeep
 import tlsh
 from swh.model.cli import pid_of_file
 import requests
+import warnings
 #Note: swh.model requires to run 'pip install dulwich' manually. Do not forget to inculde 'dulwich' in the requirements.txt
 
 class HashObject:
@@ -38,7 +39,10 @@ class HashObject:
 		if self.hash_func == 'tlsh':
 			self.obj = tlsh.Tlsh()
 		elif self.hash_func == 'ssdeep':
-			self.obj = ssdeep.Hash()
+			#cffi is a requirement of thoth-ssdeep. It throws a DeprecationWarning
+			with warnings.catch_warnings():
+				warnings.filterwarnings("ignore",category=DeprecationWarning)
+				self.obj = ssdeep.Hash()
 		elif self.hash_func == 'xxh32':
 			self.obj = xxhash.xxh32()
 		elif self.hash_func == 'xxh64':
