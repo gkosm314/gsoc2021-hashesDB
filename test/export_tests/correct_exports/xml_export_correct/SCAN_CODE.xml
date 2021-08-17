@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<root>
+	<item type="dict">
+		<scan_return_code type="int">0</scan_return_code>
+		<scan_return_code_description type="str">Successful scan</scan_return_code_description>
+	</item>
+	<item type="dict">
+		<scan_return_code type="int">1</scan_return_code>
+		<scan_return_code_description type="str">Failed scan</scan_return_code_description>
+	</item>
+	<item type="dict">
+		<scan_return_code type="int">2</scan_return_code>
+		<scan_return_code_description type="str">Currently Scanning</scan_return_code_description>
+	</item>
+	<item type="dict">
+		<scan_return_code type="int">3</scan_return_code>
+		<scan_return_code_description type="str">Failed scan: All file were scanned but some hashes were not calculated</scan_return_code_description>
+	</item>
+	<item type="dict">
+		<scan_return_code type="int">4</scan_return_code>
+		<scan_return_code_description type="str">Failed scan: Some files were not scanned</scan_return_code_description>
+	</item>
+</root>

@@ -1,0 +1,6 @@
+scan_return_code,scan_return_code_description
+0,Successful scan
+1,Failed scan
+2,Currently Scanning
+3,Failed scan: All file were scanned but some hashes were not calculated
+4,Failed scan: Some files were not scanned
