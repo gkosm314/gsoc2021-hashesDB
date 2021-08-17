@@ -74,6 +74,7 @@ class TestSqlFunction(unittest.TestCase):
 
 		#Check
 		self.assertIsNone(self.session.execute("SELECT * FROM HASH WHERE hash_id = 1").first())
+		self.assertFalse(self.db.has_unsaved_changes())
 
 		#Clean-up
 		self.session.execute("INSERT INTO HASH VALUES (1, 'swh:1:cnt:25a47ad00c7bf1a19941709c7809bd47d737ec53', 'swhid',1)")
@@ -86,6 +87,7 @@ class TestSqlFunction(unittest.TestCase):
 
 		#Check
 		self.assertIsNotNone(self.session.execute("SELECT * FROM HASH WHERE hash_id = 1").first())
+		self.assertTrue(self.db.has_unsaved_changes())
 
 	def test_statement_insert_statement(self):
 		sql_query_string = 'INSERT INTO HASH VALUES (1000, "ae7069db12c4175de471f24224d7fda6",  "md5", 1)'
