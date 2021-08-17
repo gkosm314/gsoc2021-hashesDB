@@ -5,6 +5,11 @@ import unittest
 
 if __name__ == '__main__':
 	
+	try:
+		chdir(dirname(__file__))
+	except:
+		pass
+
 	for testing_folder in listdir():
 		if testing_folder == 'run_tests.py' or testing_folder == '__pycache__':
 			continue
