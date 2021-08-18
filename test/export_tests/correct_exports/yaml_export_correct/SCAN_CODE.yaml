@@ -1,0 +1,11 @@
+- scan_return_code: 0
+  scan_return_code_description: Successful scan
+- scan_return_code: 1
+  scan_return_code_description: Failed scan
+- scan_return_code: 2
+  scan_return_code_description: Currently Scanning
+- scan_return_code: 3
+  scan_return_code_description: 'Failed scan: All file were scanned but some hashes
+    were not calculated'
+- scan_return_code: 4
+  scan_return_code_description: 'Failed scan: Some files were not scanned'

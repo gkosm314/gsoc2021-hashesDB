@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<root>
+	<item type="dict">
+		<scan_id type="int">1</scan_id>
+		<scan_hostname type="str">gk314-HP-250-G6-Notebook-PC</scan_hostname>
+		<scan_date type="str">2021-08-16 22:54:01.673555</scan_date>
+		<scan_return_code type="int">0</scan_return_code>
+	</item>
+	<item type="dict">
+		<scan_id type="int">2</scan_id>
+		<scan_hostname type="str">gk314-HP-250-G6-Notebook-PC</scan_hostname>
+		<scan_date type="str">2021-08-16 22:55:38.142462</scan_date>
+		<scan_return_code type="int">0</scan_return_code>
+	</item>
+</root>

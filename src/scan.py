@@ -666,8 +666,8 @@ def insert_file(db_session_param, target_object, scan_id_parameter):
 	db_session_param - SQLAlchemy session object
 		An active session from which we apply changes to the database
 
-	target_object_path - string
-		Path to the file for which we calculate the hash value
+	target_object - string
+		A scan target object
 
 	scan_id_parameter - int
 		The unique id of the scan during which we scan this particular file (primary key of SCAN table)
@@ -879,10 +879,6 @@ def compute_hashes(file_path, hashes_to_compute):
 
 	computed_hashes = []
 
-	#If no hash functions were given, do not compute anything
-	if not hashes_to_compute:
-		return computed_hashes
-	
 	#Block size (the hash calculation is done one memory block at a time, in order to be able to calculate hashes of files that exceed the size of the memory)
 	chunk_size = 4096
 

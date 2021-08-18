@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<root>
+	<item type="dict">
+		<hash_id type="int">90</hash_id>
+		<hash_value type="str">swh:1:cnt:a161b32d5e4bc17e8061a5c48a5483cd94bc7d50</hash_value>
+		<hash_function_name type="str">swhid</hash_function_name>
+		<file_id type="int">20</file_id>
+	</item>
+	<item type="dict">
+		<hash_id type="int">91</hash_id>
+		<hash_value type="str">54aac885d92e7e1b4a14c94d07a541a99975186d</hash_value>
+		<hash_function_name type="str">sha1</hash_function_name>
+		<file_id type="int">20</file_id>
+	</item>
+</root>

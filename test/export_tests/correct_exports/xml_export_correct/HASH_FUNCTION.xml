@@ -1,0 +1,98 @@
+<?xml version="1.0" ?>
+<root>
+	<item type="dict">
+		<hash_function_name type="str">shake_256</hash_function_name>
+		<hash_function_fuzzy_flag type="int">0</hash_function_fuzzy_flag>
+		<hash_function_size type="int">256</hash_function_size>
+	</item>
+	<item type="dict">
+		<hash_function_name type="str">blake2s</hash_function_name>
+		<hash_function_fuzzy_flag type="int">0</hash_function_fuzzy_flag>
+		<hash_function_size type="int">256</hash_function_size>
+	</item>
+	<item type="dict">
+		<hash_function_name type="str">sha3_384</hash_function_name>
+		<hash_function_fuzzy_flag type="int">0</hash_function_fuzzy_flag>
+		<hash_function_size type="int">384</hash_function_size>
+	</item>
+	<item type="dict">
+		<hash_function_name type="str">sha512</hash_function_name>
+		<hash_function_fuzzy_flag type="int">0</hash_function_fuzzy_flag>
+		<hash_function_size type="int">512</hash_function_size>
+	</item>
+	<item type="dict">
+		<hash_function_name type="str">shake_128</hash_function_name>
+		<hash_function_fuzzy_flag type="int">0</hash_function_fuzzy_flag>
+		<hash_function_size type="int">128</hash_function_size>
+	</item>
+	<item type="dict">
+		<hash_function_name type="str">sha3_224</hash_function_name>
+		<hash_function_fuzzy_flag type="int">0</hash_function_fuzzy_flag>
+		<hash_function_size type="int">224</hash_function_size>
+	</item>
+	<item type="dict">
+		<hash_function_name type="str">sha384</hash_function_name>
+		<hash_function_fuzzy_flag type="int">0</hash_function_fuzzy_flag>
+		<hash_function_size type="int">384</hash_function_size>
+	</item>
+	<item type="dict">
+		<hash_function_name type="str">sha224</hash_function_name>
+		<hash_function_fuzzy_flag type="int">0</hash_function_fuzzy_flag>
+		<hash_function_size type="int">224</hash_function_size>
+	</item>
+	<item type="dict">
+		<hash_function_name type="str">sha3_512</hash_function_name>
+		<hash_function_fuzzy_flag type="int">0</hash_function_fuzzy_flag>
+		<hash_function_size type="int">512</hash_function_size>
+	</item>
+	<item type="dict">
+		<hash_function_name type="str">sha1</hash_function_name>
+		<hash_function_fuzzy_flag type="int">0</hash_function_fuzzy_flag>
+		<hash_function_size type="int">160</hash_function_size>
+	</item>
+	<item type="dict">
+		<hash_function_name type="str">md5</hash_function_name>
+		<hash_function_fuzzy_flag type="int">0</hash_function_fuzzy_flag>
+		<hash_function_size type="int">128</hash_function_size>
+	</item>
+	<item type="dict">
+		<hash_function_name type="str">sha3_256</hash_function_name>
+		<hash_function_fuzzy_flag type="int">0</hash_function_fuzzy_flag>
+		<hash_function_size type="int">256</hash_function_size>
+	</item>
+	<item type="dict">
+		<hash_function_name type="str">sha256</hash_function_name>
+		<hash_function_fuzzy_flag type="int">0</hash_function_fuzzy_flag>
+		<hash_function_size type="int">256</hash_function_size>
+	</item>
+	<item type="dict">
+		<hash_function_name type="str">blake2b</hash_function_name>
+		<hash_function_fuzzy_flag type="int">0</hash_function_fuzzy_flag>
+		<hash_function_size type="int">512</hash_function_size>
+	</item>
+	<item type="dict">
+		<hash_function_name type="str">xxh32</hash_function_name>
+		<hash_function_fuzzy_flag type="int">0</hash_function_fuzzy_flag>
+		<hash_function_size type="int">32</hash_function_size>
+	</item>
+	<item type="dict">
+		<hash_function_name type="str">xxh64</hash_function_name>
+		<hash_function_fuzzy_flag type="int">0</hash_function_fuzzy_flag>
+		<hash_function_size type="int">64</hash_function_size>
+	</item>
+	<item type="dict">
+		<hash_function_name type="str">ssdeep</hash_function_name>
+		<hash_function_fuzzy_flag type="int">1</hash_function_fuzzy_flag>
+		<hash_function_size type="null"/>
+	</item>
+	<item type="dict">
+		<hash_function_name type="str">tlsh</hash_function_name>
+		<hash_function_fuzzy_flag type="int">1</hash_function_fuzzy_flag>
+		<hash_function_size type="null"/>
+	</item>
+	<item type="dict">
+		<hash_function_name type="str">swhid</hash_function_name>
+		<hash_function_fuzzy_flag type="int">0</hash_function_fuzzy_flag>
+		<hash_function_size type="null"/>
+	</item>
+</root>
