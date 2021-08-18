@@ -666,8 +666,8 @@ def insert_file(db_session_param, target_object, scan_id_parameter):
 	db_session_param - SQLAlchemy session object
 		An active session from which we apply changes to the database
 
-	target_object_path - string
-		Path to the file for which we calculate the hash value
+	target_object - string
+		A scan target object
 
 	scan_id_parameter - int
 		The unique id of the scan during which we scan this particular file (primary key of SCAN table)
